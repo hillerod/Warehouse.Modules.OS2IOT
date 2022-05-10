@@ -1,0 +1,151 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.6.1.6515",
+      "templateHash": "8412774769996786273"
+    }
+  },
+  "parameters": {
+    "moduleName": {
+      "type": "string",
+      "defaultValue": "OS2IOT",
+      "metadata": {
+        "description": "The name of the module. Only use between 3-24 letters or numers, or the Warehouse can't function. The functionApp gets the same name followed by the \"-resourceGroup.id\". The modulename is hard to change later, so try to keep it static. It is used in dataLake and databse as an identifier of data that comes from this app"
+      },
+      "maxLength": 24,
+      "minLength": 3
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "You may choose the same as you used for the datawarehouse"
+      }
+    },
+    "timeZoneId": {
+      "type": "string",
+      "defaultValue": "Romance Standard Time",
+      "metadata": {
+        "description": "\"Romance Standard Time\" is Copenhagen. For other timezones, find them here: https://raw.githubusercontent.com/Bygdrift/Warehouse/master/Docs/TimeZoneIds.csv"
+      }
+    }
+  },
+  "variables": {
+    "functionAppName": "[format('{0}-{1}', parameters('moduleName'), uniqueString(resourceGroup().id))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2020-10-01",
+      "name": "[format('windows-{0}', uniqueString(resourceGroup().id))]",
+      "location": "[parameters('location')]",
+      "kind": "functionapp",
+      "sku": {
+        "name": "Y1",
+        "tier": "Dynamic"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2021-02-01",
+      "name": "[variables('functionAppName')]",
+      "kind": "functionapp",
+      "location": "[parameters('location')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', format('windows-{0}', uniqueString(resourceGroup().id)))]",
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[reference(resourceId('Microsoft.Insights/components', 'applicationInsights'), '2020-02-02-preview').InstrumentationKey]"
+            },
+            {
+              "name": "AzureWebJobsStorage",
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', format('appstorage{0}', uniqueString(resourceGroup().id)), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', format('appstorage{0}', uniqueString(resourceGroup().id))), '2019-06-01').keys[0].value)]"
+            },
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~4"
+            },
+            {
+              "name": "FUNCTIONS_WORKER_RUNTIME",
+              "value": "dotnet"
+            },
+            {
+              "name": "HostName",
+              "value": "[format('{0}.azurewebsites.net', variables('functionAppName'))]"
+            },
+            {
+              "name": "ModuleName",
+              "value": "[parameters('moduleName')]"
+            },
+            {
+              "name": "TimeZoneId",
+              "value": "[parameters('timeZoneId')]"
+            },
+            {
+              "name": "VaultUri",
+              "value": "[reference(resourceId('Microsoft.KeyVault/vaults', format('keyvault-{0}', uniqueString(resourceGroup().id))), '2019-09-01').vaultUri]"
+            },
+            {
+              "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', format('appstorage{0}', uniqueString(resourceGroup().id)), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', format('appstorage{0}', uniqueString(resourceGroup().id))), '2019-06-01').keys[0].value)]"
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', format('windows-{0}', uniqueString(resourceGroup().id)))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/sourcecontrols",
+      "apiVersion": "2021-01-01",
+      "name": "[format('{0}/web', variables('functionAppName'))]",
+      "properties": {
+        "repoUrl": "https://github.com/hillerod/Warehouse.Modules.OS2IOT",
+        "branch": "master",
+        "isManualIntegration": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/accessPolicies",
+      "apiVersion": "2021-06-01-preview",
+      "name": "[format('{0}/add', format('keyvault-{0}', uniqueString(resourceGroup().id)))]",
+      "properties": {
+        "accessPolicies": [
+          {
+            "objectId": "[reference(resourceId('Microsoft.Web/sites', variables('functionAppName')), '2021-02-01', 'full').identity.principalId]",
+            "permissions": {
+              "secrets": [
+                "get",
+                "list",
+                "set",
+                "delete"
+              ]
+            },
+            "tenantId": "[reference(resourceId('Microsoft.Web/sites', variables('functionAppName')), '2021-02-01', 'full').identity.tenantId]"
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "functionAppName": {
+      "type": "string",
+      "value": "[variables('functionAppName')]"
+    }
+  }
+}
