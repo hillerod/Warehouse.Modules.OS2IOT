@@ -12,7 +12,7 @@
 //    /// To run this test, then first add an Azure environmed, as decribed here: https://github.com/Bygdrift/Warehouse
 //    /// Then fetch the Azure App config connections tring and paste it to this project's User Secret like: {"ConnectionStrings:AppConfig": "the connectionstring to app config"}.
 //    [TestClass]
-//    public class TimerTriggerTests
+//    public class TimerTriggerTests 
 //    { 
 //        private readonly Mock<ILogger<TimerTrigger>> loggerMock = new();
 //        private readonly TimerTrigger function;
