@@ -1,0 +1,16 @@
+{
+  "version": "2.0",
+  "logging": {
+    "logLevel": {
+      "Module.AppFunctions.TimerTrigger": "Information"
+      //"default": "Information"  //Better to use Namespace.Class.Method, instead of this because it returns a lot information
+    },
+    "applicationInsights": {
+      "samplingSettings": {
+        "isEnabled": true,
+        "excludedTypes": "Request"
+      }
+    },
+    "functionTimeout": "00:10:00" //https://docs.microsoft.com/en-us/azure/azure-functions/functions-host-json#functiontimeout
+  }
+}
