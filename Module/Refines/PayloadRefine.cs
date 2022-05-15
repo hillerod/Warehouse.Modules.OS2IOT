@@ -15,13 +15,18 @@ namespace Module.Refines
         public static async Task Refine(AppBase<Settings> app, string json)
         {
             app.Log.LogInformation("Refining data...");
-
             var smallGuid = Convert.ToBase64String(Guid.NewGuid().ToByteArray()).Replace("==", string.Empty);
-            var fileName = $"{DateTime.Now:yyyy-MM-dd hh.mm.ss}_{smallGuid}_payload.json";
-            await app.DataLake.SaveStringAsync(json, "payloadRaw", fileName, FolderStructure.DateTimePath);
-
-            var csv = new Csv().FromJson(json);
+            var fileName = $"{DateTime.Now:yyyy-MM-dd HH.mm.ss}_{smallGuid}_payload.json";
+            await app.DataLake.SaveStringAsync(json, "PayloadRaw", fileName, FolderStructure.DateTimePath);
+            var csv = CreateCsv(app, json);
             app.Mssql.InserCsv(csv, "Payloads", false, false);
+        }
+
+        private static Csv CreateCsv(AppBase<Settings> app, string json)
+        {
+            var csv = new Csv().FromJson(json);
+            csv.AddRecord(1, "timeStamp", app.ToLocalTime(DateTime.Now));
+            return csv;
         }
     }
 }
