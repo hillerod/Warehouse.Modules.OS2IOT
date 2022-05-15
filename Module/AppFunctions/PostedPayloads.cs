@@ -22,10 +22,10 @@ namespace Module.AppFunctions
 
         public AppBase<Settings> App { get; private set; }
 
-        [FunctionName("payload")]
+        [FunctionName("payload2")]
         //[OpenApiOperation(operationId: "Run", tags: new[] { "OS2IOT" })]
         //[OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string), Description = "The OK response")]
-        public async Task<IActionResult> Payload([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req)
+        public async Task<IActionResult> Payload2([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req)
         {
             var res = "";
             var headers = req.Headers;
