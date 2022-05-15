@@ -16,7 +16,7 @@ namespace Module.Refines
         {
             app.Log.LogInformation("Refining data...");
             var smallGuid = Convert.ToBase64String(Guid.NewGuid().ToByteArray()).Replace("==", string.Empty);
-            var fileName = $"{DateTime.Now:yyyy-MM-dd HH.mm.ss}_{smallGuid}_payload.json";
+            var fileName = $"{DateTime.Now:yyyy-MM-dd HH.mm.ss}_payload_{smallGuid}.json";
             await app.DataLake.SaveStringAsync(json, "PayloadRaw", fileName, FolderStructure.DateTimePath);
             var csv = CreateCsv(app, json);
             app.Mssql.InserCsv(csv, "Payloads", false, false);
@@ -24,8 +24,8 @@ namespace Module.Refines
 
         private static Csv CreateCsv(AppBase<Settings> app, string json)
         {
-            var csv = new Csv().FromJson(json);
-            csv.AddRecord(1, "timeStamp", app.ToLocalTime(DateTime.Now));
+            var csv = new Csv("timeStamp").FromJson(json);
+            csv.AddRecord(1, 1, app.ToLocalTime(DateTime.Now));
             return csv;
         }
     }
