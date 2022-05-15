@@ -2,7 +2,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Module;
 using Module.Refines;
+using System;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace ModuleTests.Refines
 {
@@ -15,7 +17,15 @@ namespace ModuleTests.Refines
         [TestMethod]
         public async Task ImportJson()
         {
-            await PayloadRefine.Refine(app, json);
+            var res = "";
+            for (int i = 0; i < 140; i++)
+            {
+                res += Convert.ToBase64String(Guid.NewGuid().ToByteArray()).Replace("/", string.Empty).Replace("+", string.Empty)[..10] + "\n";
+
+            }
+            //var smallGuid = HttpUtility.UrlEncode(a);
+
+            //await PayloadRefine.Refine(app, json);
         }
     }
 }
