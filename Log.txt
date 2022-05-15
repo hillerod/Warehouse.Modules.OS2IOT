@@ -1,0 +1,8 @@
+Dokumentation af API: https://os2iot.readthedocs.io/en/latest/software-architecture/software-architecture.html?highlight=rest#os2iot-rest-api-security
+API Swgger: https://backend.os2iot.gate21.dk/api/v1/docs/#/
+Her skal jeg indmelde isues: https://github.com/OS2iot/OS2IoT-backend/issues/new
+
+Device-model-id is not set on each iot-device in the API method GET: /api/v1/application/{id}/iot-devices
+Unfortunately there are no device-model-id in the above mentioned call, so to get the relation between iot-device and device-model, I have to make a call to each iot-device (GET
+/api/v1/iot-device/{id}), where I can read the device-model-id.
+It would be super if this information was added.

@@ -5,7 +5,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Bygdrift.Warehouse" Version="0.6.6" />
+		<!--<PackageReference Include="Bygdrift.Warehouse" Version="0.6.6" />-->
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
 		<PackageReference Include="Moq" Version="4.16.1" />
 		<PackageReference Include="MSTest.TestAdapter" Version="2.2.5">
@@ -20,9 +20,9 @@
 		<ProjectReference Include="..\Module\Module.csproj" />
 
 		<!--For the developer of bygdrift Warehosue when testing-->
-		<!--<Reference Include="Bygdrift.Warehouse">
+		<Reference Include="Bygdrift.Warehouse">
 			<HintPath>..\..\..\..\..\Bygdrift\Warehouse\Warehouse\bin\Debug\net6.0\Bygdrift.Warehouse.dll</HintPath>
-		</Reference>-->
+		</Reference>
 	</ItemGroup>
 
 	<ItemGroup>
