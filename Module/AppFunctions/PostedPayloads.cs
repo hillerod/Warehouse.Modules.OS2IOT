@@ -8,9 +8,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+//using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
+//using Microsoft.OpenApi.Models;
 
 namespace Module.AppFunctions
 {
@@ -23,8 +23,8 @@ namespace Module.AppFunctions
         public AppBase<Settings> App { get; private set; }
 
         [FunctionName("payload")]
-        [OpenApiOperation(operationId: "Run", tags: new[] { "OS2IOT" })]
-        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string), Description = "The OK response")]
+        //[OpenApiOperation(operationId: "Run", tags: new[] { "OS2IOT" })]
+        //[OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string), Description = "The OK response")]
         public async Task<IActionResult> Payload([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req)
         {
             var res = "";
