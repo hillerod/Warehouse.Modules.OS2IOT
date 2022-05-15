@@ -17,6 +17,6 @@ namespace Module
         public string Password { get; set; }
 
         [ConfigSecret]
-        public string MethodPostAuthorization { get; set; }
+        public string PostPayloadsAuthorizationKey { get; set; }
     }
 }

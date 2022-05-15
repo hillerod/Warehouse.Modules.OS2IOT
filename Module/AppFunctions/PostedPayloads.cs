@@ -14,7 +14,6 @@ using Microsoft.OpenApi.Models;
 
 namespace Module.AppFunctions
 {
-
     //God dok: https://www.ais.com/self-documenting-azure-functions-with-c-and-openapi-part-two/
 
     public class PostedPayloads
@@ -50,4 +49,3 @@ namespace Module.AppFunctions
         }
     }
 }
-
