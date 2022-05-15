@@ -9,7 +9,7 @@
 		<Company>Bygdrift</Company>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Bygdrift.Warehouse" Version="0.7.0" />
+		<PackageReference Include="Bygdrift.Warehouse" Version="1.0.0" />
 		<!--<PackageReference Include="Microsoft.Azure.WebJobs.Extensions.OpenApi" Version="1.3.0" />-->
 		<PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.0.1" />
 
