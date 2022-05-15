@@ -16,8 +16,8 @@ namespace Module.AppFunctions
         public async Task CleanDataLakeEachWeek([TimerTrigger("0 0 0 * * 0")] TimerInfo myTimer)
         {
             var days = Convert.ToInt32((DateTime.Now - DateTime.Now.AddMonths(-App.Settings.MonthsToKeepDataInDataLake)).TotalDays);
-            await App.DataLake.DeleteDirectoriesOlderThanDaysAsync("ApiRaw", days);
-            await App.DataLake.DeleteDirectoriesOlderThanDaysAsync("ApiRefined", days);
+            //await App.DataLake.DeleteDirectoriesOlderThanDaysAsync("ApiRaw", days);
+            //await App.DataLake.DeleteDirectoriesOlderThanDaysAsync("ApiRefined", days);
         }
     }
 }
