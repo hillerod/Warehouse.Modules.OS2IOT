@@ -10,9 +10,6 @@ namespace Module
         [ConfigSetting]
         public int MonthsToKeepDataInDataLake { get; set; }
 
-        [ConfigSetting]
-        public bool SavePayloadsToDataLake { get; set; }
-
         [ConfigSecret]
         public string UserName { get; set; }
 

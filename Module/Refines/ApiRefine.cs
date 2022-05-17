@@ -15,7 +15,7 @@ namespace Module.Refines
 {
     public class ApiRefine
     {
-        public static async Task Refine(AppBase<Settings> app, Applications applications, DeviceModels deviceModels, IEnumerable<IotDevice> iotDevices)
+        public static async Task RefineAsync(AppBase<Settings> app, Applications applications, DeviceModels deviceModels, IEnumerable<IotDevice> iotDevices)
         {
             app.Log.LogInformation("Refining data...");
 
