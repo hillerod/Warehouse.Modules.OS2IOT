@@ -11,12 +11,12 @@ using System.Threading.Tasks;
 namespace ModuleTests.Services
 {
     [TestClass]
-    public class IServiceTests
+    public class ServiceTests
     {
         private readonly ApiService service;
         private readonly AppBase<Settings> app = new();
 
-        public IServiceTests()
+        public ServiceTests()
         {
             service = new ApiService(app);
         }
@@ -25,6 +25,13 @@ namespace ModuleTests.Services
         public async Task GetDataAsync()
         {
             var g = await service.GetAuthProfileAsync();
+        }
+
+        [TestMethod]
+        public async Task GetGatewaysAsync()
+        {
+            var g = await service.GetChirpstackGatewaysAsync(10);
+            var h = g.ToList();
         }
     }
 }

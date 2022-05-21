@@ -53,7 +53,7 @@ namespace Module.Services
             return await GetAsync<IotDevice>("/api/v1/iot-device/" + deviceId);
         }
 
-        public async Task<IEnumerable<IotDevice>> GetIOTDevicesAsync(Applications applications)
+        public async Task<IotDevice[]> GetIOTDevicesAsync(Applications applications)
         {
             var tasks = new List<Task<IotDevice>>();
             var res = new List<IotDevice>();
@@ -63,12 +63,37 @@ namespace Module.Services
                 tasks.Add(GetIOTDeviceAsync(item));
 
             await Task.WhenAll(tasks);
-            return tasks.Select(o => o.Result);
+            return tasks.Select(o => o.Result).ToArray();
         }
+
+        public async Task<Organizations> GetOrganizationsAsync()
+        {
+            return await GetAsync<Organizations>("/api/v1/organization");
+        }
+
+        public async Task<ChirpstackGateway[]> GetChirpstackGatewaysAsync(int organizationId)
+        {
+            return (await GetAsync<ChirpstackGateways>($"/api/v1/chirpstack/gateway?organizationId={organizationId}")).result;
+        }
+
+        public async Task<ChirpstackGateway[]> GetChirpstackGatewaysAsync(Organizations organizations)
+        {
+            var tasks = new List<Task<ChirpstackGateway[]>>();
+            var res = new List<ChirpstackGateway>();
+            var ids = organizations.data.Select(o => o.id);
+
+            foreach (var item in ids)
+                tasks.Add(GetChirpstackGatewaysAsync(item));
+
+            await Task.WhenAll(tasks);
+            return tasks.SelectMany(o => o.Result).ToArray();
+        }
+
 
         public async Task<T> GetAsync<T>(string subUrl)
         {
-            var response = await Client.GetAsync(subUrl + "?limit=1000");
+            var delimiter = subUrl.Contains('?') ? "&" : "?";
+            var response = await Client.GetAsync($"{subUrl}{delimiter}limit=1000");
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 App.Log.LogError("The webservice {Url} failed. Error: {Error}.", response.RequestMessage.RequestUri, response.ReasonPhrase);

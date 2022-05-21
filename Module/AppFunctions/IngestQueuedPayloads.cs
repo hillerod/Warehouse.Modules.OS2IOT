@@ -1,8 +1,6 @@
-using System;
 using System.Threading.Tasks;
 using Bygdrift.Warehouse;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
 using Module.Refines;
 

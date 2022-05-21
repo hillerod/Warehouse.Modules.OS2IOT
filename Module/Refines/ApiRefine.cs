@@ -2,7 +2,6 @@
 using Bygdrift.DataLakeTools;
 using Bygdrift.Warehouse;
 using Module.Services.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,28 +14,44 @@ namespace Module.Refines
 {
     public class ApiRefine
     {
-        public static async Task RefineAsync(AppBase<Settings> app, Applications applications, DeviceModels deviceModels, IEnumerable<IotDevice> iotDevices)
+        private static AppBase<Settings> App;
+        public static async Task RefineAsync(AppBase<Settings> app, Organizations organizations, Applications applications, DeviceModels deviceModels, IEnumerable<IotDevice> iotDevices, ChirpstackGateway[] gateways)
         {
-            app.Log.LogInformation("Refining data...");
+            App = app;
+            await Add("Organizations", organizations, CreateOrganizationsCsv(organizations), "id");
+            await Add("ChirpstackGateways", gateways, CreateGatwaysCsv(gateways), "id");
+            await Add("Applications", applications, CreateApplicationsCsv(applications), "id");
+            await Add("DeviceModels", deviceModels, CreateDeviceModelsCsv(deviceModels), "id");
+            await Add("IotDevices", iotDevices, CreateIotDevicesCsv(iotDevices), "id");
+        }
 
-            await app.DataLake.SaveObjectAsync(applications, "ApiRaw", "Applications.json", FolderStructure.DatePath);
-            await app.DataLake.SaveObjectAsync(deviceModels, "ApiRaw", "DeviceModels.json", FolderStructure.DatePath);
+        private static async Task Add(string name, object data, Csv csv, string primaryKeyId) 
+        {
+            App.Log.LogInformation($"Refine and save {name}...");
+            await App.DataLake.SaveObjectAsync(data, "ApiRaw", name + ".json", FolderStructure.DatePath);
+            await App.DataLake.SaveCsvAsync(csv, "ApiRefined", name + ".csv", FolderStructure.DatePath);
+            App.Mssql.MergeCsv(csv, name, primaryKeyId, false, false);
+        }
 
-            app.Log.LogInformation("Refine and save Applications...");
-            var appCsv = CreateApplicationsCsv(applications);
-            await app.DataLake.SaveCsvAsync(appCsv, "ApiRefined", "Applications.csv", FolderStructure.DatePath);
-            app.Mssql.InserCsv(appCsv, "Applications", false, false);
+        private static Csv CreateGatwaysCsv(ChirpstackGateway[] gateways)
+        {
+            var csv = new Csv();
+            foreach (var item in gateways)
+                csv.FromObject(item, true);
 
+            return csv;
+        }
 
-            app.Log.LogInformation("Refine and save DeviceModels...");
-            var modelCsv = CreateDeviceModelsCsv(deviceModels);
-            await app.DataLake.SaveCsvAsync(appCsv, "ApiRefined", "DeviceModels.csv", FolderStructure.DatePath);
-            app.Mssql.InserCsv(modelCsv, "DeviceModels", false, false);
+        private static Csv CreateOrganizationsCsv(Organizations organizations)
+        {
+            var csv = new Csv("id, name, applicationIds, createdAt, updatedAt");
+            foreach (var a in organizations.data)
+            {
+                var applicationIds = a.applications != null ? string.Join(',', a.applications.Select(p => p.id)) : null;
+                csv.AddRow(a.id, a.name, applicationIds, a.createdAt, a.updatedAt);
+            }
 
-            app.Log.LogInformation("Refine and save IOTDevices...");
-            var iotCsv = CreateIotDevicesCsv(iotDevices);
-            await app.DataLake.SaveCsvAsync(appCsv, "ApiRefined", "IotDevices.csv", FolderStructure.DatePath);
-            app.Mssql.InserCsv(iotCsv, "IotDevices", false, false);
+            return csv;
         }
 
         private static Csv CreateApplicationsCsv(Applications applications)
@@ -55,7 +70,6 @@ namespace Module.Refines
             {
                 var controlledProperties = d.body.controlledProperty.Any() ? string.Join(',', d.body.controlledProperty) : null;
                 csv.AddRow(d.id, d.body.name, d.body.type, d.body.category, d.body.brandName, d.body.modelName, d.body.manufacturerName, controlledProperties, d.createdAt, d.updatedAt);
-
             }
 
             return csv;

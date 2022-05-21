@@ -21,10 +21,12 @@ namespace Module.AppFunctions
         [FunctionName(nameof(GetDataFromApi))]
         public async Task Run([TimerTrigger("%OS2IOTApiScheduleExpression%")] TimerInfo myTimer)
         {
+            var organizations = await ApiService.GetOrganizationsAsync();
             var applications = await ApiService.GetApplicationsAsync();
             var models = await ApiService.GetDeviceModelsAsync();
             var iotDevices = await ApiService.GetIOTDevicesAsync(applications);
-            await ApiRefine.RefineAsync(App, applications, models, iotDevices);
+            var chirpstackGateways = await ApiService.GetChirpstackGatewaysAsync(organizations);
+            await ApiRefine.RefineAsync(App, organizations, applications, models, iotDevices, chirpstackGateways);
         }
     }
 }
