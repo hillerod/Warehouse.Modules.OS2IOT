@@ -21,7 +21,7 @@ All modules can be installed and facilitated with ARM templates (Azure Resource 
 
 ## Database content
 
-Data from payloads are saved exactly as the payload decoder describes. If data from multiple decoders are saved into the table, data is saved into columns with similar names and new columns are added:
+Data from payloads are saved exactly as the payload decoder in OS2IOT describes. If data comes from multiple decoders, data is saved into columns with similar names, and if columns isn't present, they will be added:
 
 | TABLE_NAME         | COLUMN_NAME             | DATA_TYPE |
 | :----------------- | :---------------------- | :-------- |
@@ -38,7 +38,7 @@ Data from payloads are saved exactly as the payload decoder describes. If data f
 | Payloads           | name                    | varchar   |
 | Payloads           | timeStamp               | datetime  |
 
-Data from the API:
+Data from the OS2IOT API:
 | TABLE_NAME         | COLUMN_NAME             | DATA_TYPE |
 | :----------------- | :---------------------- | :-------- |
 | Organizations      | id                      | int       |
