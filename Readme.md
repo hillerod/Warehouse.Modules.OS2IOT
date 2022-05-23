@@ -4,7 +4,7 @@
 
 With this module, you can easily setup an environment in Azure, to consume data from OS2IOT.
 ![The flow](https://raw.githubusercontent.com/hillerod/Warehouse.Modules.OS2IOT/master/Docs/Images/setup-in-azure-and-os2iot.drawio.png)
-
+ 
 It can fetch data one or multiple times each day, from OS2IOT's API and save them in the database.
 It also fetches data from sensors. In a later version, data will also be refined into data per hour, data per day and data per month.
 
