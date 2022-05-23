@@ -4,12 +4,12 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.6.1.6515",
-      "templateHash": "8412774769996786273"
+      "version": "0.6.11.53198",
+      "templateHash": "7046074137012534460"
     }
   },
   "parameters": {
-    "moduleName": {
+    "ModuleName": {
       "type": "string",
       "defaultValue": "OS2IOT",
       "metadata": {
@@ -18,11 +18,43 @@
       "maxLength": 24,
       "minLength": 3
     },
-    "location": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().location]",
+    "MonthsToKeepDataInDataLake": {
+      "type": "int",
+      "defaultValue": 6,
       "metadata": {
-        "description": "You may choose the same as you used for the datawarehouse"
+        "description": "How many months back, data should be stored in the Data Lake for safety."
+      }
+    },
+    "OS2IOTApiBaseUrl": {
+      "type": "string",
+      "defaultValue": "https://backend.os2iot.gate21.dk",
+      "metadata": {
+        "description": "The url to the backend of OS2IOT. Used to fetch data from API. If you use the one from gate21, the address is: https://backend.os2iot.gate21.dk"
+      }
+    },
+    "OS2IOTApiScheduleExpression": {
+      "type": "string",
+      "defaultValue": "0 0 1 * * *",
+      "metadata": {
+        "description": "How often this module should fetch data from API. This example runs each night at 1AM UTC. Read more here: https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer?tabs=csharp#ncrontab-expressions"
+      }
+    },
+    "OS2IOTApiUserName": {
+      "type": "secureString",
+      "metadata": {
+        "description": "Username to OS2IOT. Can be left blank, but then data from OS2IOT API, will not be fetched."
+      }
+    },
+    "OS2IOTApiPassword": {
+      "type": "secureString",
+      "metadata": {
+        "description": "Password to OS2IOT. Can be left blank, but then data from OS2IOT API, will not be fetched."
+      }
+    },
+    "PostPayloadsAuthorizationKey": {
+      "type": "secureString",
+      "metadata": {
+        "description": "The authorizationKey used in OS2IOT"
       }
     },
     "timeZoneId": {
@@ -34,14 +66,38 @@
     }
   },
   "variables": {
-    "functionAppName": "[format('{0}-{1}', parameters('moduleName'), uniqueString(resourceGroup().id))]"
+    "functionAppName": "[format('{0}-{1}', parameters('ModuleName'), uniqueString(resourceGroup().id))]"
   },
   "resources": [
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2019-09-01",
+      "name": "[format('{0}/{1}', format('keyvault-{0}', uniqueString(resourceGroup().id)), format('Secret--{0}--OS2IOTApiUserName', parameters('ModuleName')))]",
+      "properties": {
+        "value": "[parameters('OS2IOTApiUserName')]"
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2019-09-01",
+      "name": "[format('{0}/{1}', format('keyvault-{0}', uniqueString(resourceGroup().id)), format('Secret--{0}--OS2IOTApiPassword', parameters('ModuleName')))]",
+      "properties": {
+        "value": "[parameters('OS2IOTApiPassword')]"
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2019-09-01",
+      "name": "[format('{0}/{1}', format('keyvault-{0}', uniqueString(resourceGroup().id)), format('Secret--{0}--PostPayloadsAuthorizationKey', parameters('ModuleName')))]",
+      "properties": {
+        "value": "[parameters('PostPayloadsAuthorizationKey')]"
+      }
+    },
     {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2020-10-01",
       "name": "[format('windows-{0}', uniqueString(resourceGroup().id))]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "kind": "functionapp",
       "sku": {
         "name": "Y1",
@@ -53,7 +109,7 @@
       "apiVersion": "2021-02-01",
       "name": "[variables('functionAppName')]",
       "kind": "functionapp",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "identity": {
         "type": "SystemAssigned"
       },
@@ -83,7 +139,19 @@
             },
             {
               "name": "ModuleName",
-              "value": "[parameters('moduleName')]"
+              "value": "[parameters('ModuleName')]"
+            },
+            {
+              "name": "MonthsToKeepDataInDataLake",
+              "value": "[string(parameters('MonthsToKeepDataInDataLake'))]"
+            },
+            {
+              "name": "OS2IOTApiBaseUrl",
+              "value": "[parameters('OS2IOTApiBaseUrl')]"
+            },
+            {
+              "name": "OS2IOTApiScheduleExpression",
+              "value": "[parameters('OS2IOTApiScheduleExpression')]"
             },
             {
               "name": "TimeZoneId",

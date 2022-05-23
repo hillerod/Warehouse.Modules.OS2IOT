@@ -11,10 +11,10 @@ namespace Module
         public int MonthsToKeepDataInDataLake { get; set; }
 
         [ConfigSecret]
-        public string UserName { get; set; }
+        public string OS2IOTApiUserName { get; set; }
 
         [ConfigSecret]
-        public string Password { get; set; }
+        public string OS2IOTApiPassword { get; set; }
 
         [ConfigSecret]
         public string PostPayloadsAuthorizationKey { get; set; }

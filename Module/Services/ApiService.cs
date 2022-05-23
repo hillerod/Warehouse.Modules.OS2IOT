@@ -89,9 +89,11 @@ namespace Module.Services
             return tasks.SelectMany(o => o.Result).ToArray();
         }
 
-
         public async Task<T> GetAsync<T>(string subUrl)
         {
+            if (Client == null)
+                return default;
+
             var delimiter = subUrl.Contains('?') ? "&" : "?";
             var response = await Client.GetAsync($"{subUrl}{delimiter}limit=1000");
             if (response.StatusCode != HttpStatusCode.OK)
@@ -105,12 +107,15 @@ namespace Module.Services
 
         private HttpClient GetHttpClient()
         {
+            if (string.IsNullOrEmpty(App.Settings.OS2IOTApiUserName) || string.IsNullOrEmpty(App.Settings.OS2IOTApiPassword))
+                return null;
+
             var handler = new HttpClientHandler();
             var client = new HttpClient(handler);
             client.Timeout = new TimeSpan(1, 0, 0);
             client.BaseAddress = new Uri(App.Settings.OS2IOTApiBaseUrl);
 
-            var user = "{\"username\":\"" + App.Settings.UserName + "\", \"password\":\"" + App.Settings.Password + "\"}";
+            var user = "{\"username\":\"" + App.Settings.OS2IOTApiUserName + "\", \"password\":\"" + App.Settings.OS2IOTApiPassword + "\"}";
             var data = new StringContent(user, Encoding.UTF8, "application/json");
             var response = client.PostAsync("/api/v1/auth/login", data).Result;
             if (response.StatusCode != HttpStatusCode.Created)
