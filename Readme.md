@@ -14,6 +14,23 @@ By saving data to a MS SQL database, it is:
 - easy to control who has access to what - actually, it can be controlled with AD so you don't have to handle credentials
 - It's cheap
 
+## Videos
+
+How this module is used in Hillerød Municipality and how it's installed (remember first to install the [Bygdrift Warehouse base module](https://github.com/Bygdrift/Warehouse)):
+<div align="left">
+      <a href="https://www.youtube.com/watch?v=jVe_HdMg5R8">
+         <img src="https://img.youtube.com/vi/jVe_HdMg5R8/0.jpg">
+      </a>
+</div>
+
+Description of how this module fetches data from OS2IOT:
+<div align="left">
+      <a href="https://www.youtube.com/watch?v=cuDi3phDrAU">
+         <img src="https://img.youtube.com/vi/cuDi3phDrAU/0.jpg">
+      </a>
+</div>
+
+
 ## Installation
 
 All modules can be installed and facilitated with ARM templates (Azure Resource Management): [Use ARM templates to setup and maintain this module](https://github.com/hillerod/Warehouse.Modules.OS2IOT/blob/master/Deploy).
