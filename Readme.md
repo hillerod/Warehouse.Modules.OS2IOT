@@ -19,28 +19,29 @@ By saving data to a MS SQL database, it is:
 
 ### OS2IOT's API
 
-In OS2IOT, there is an [API](https://backend.os2iot.gate21.dk/api/v1/docs/#/) that contains a lot of useful data that gets fetched each day from this module, and saved into the database. Under [Database content](###Data-from-the-OS2IOT-API:), there is a list of data that gets loaded.
-When installing this module, you can define how often the API should be called by the parameter `OS2IOTApiScheduleExpression = 0 0 1 * * *` and that is each day 1AM UTC time. [Read about how to change it](https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer?tabs=csharp#ncrontab-expressions).
+In OS2IOT, there is an [API](https://backend.os2iot.gate21.dk/api/v1/docs/#/) that contains a lot of useful data that gets fetched each day from this module and saved into the database. Under [Database content](#Data-from-the-OS2IOT-API), there is a list of data that gets loaded.
+When installing this module, you can define how often the API should be called by the parameter `OS2IOTApiScheduleExpression = 0 0 1 * * *` That is each day 1AM UTC time. [Read about how to change it](https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer?tabs=csharp#ncrontab-expressions).
 
 ### Getting payloads
 
-Data from the sensors gets send to the server, that transfers the message OS2IOT as a payload. These packages are compressed to fill as little as possible, so In OS2IOT, technical users can setup their own payload decoders in JavaScript, or use the library of decoders, to decompress the payloads.
+Data from the sensors gets send to the server and then transferred to the OS2IOT server as a payload. These packages are compressed to be as tiny as possible, so In OS2IOT, technical users can setup their own payload decoders, or use the library of decoders, to decompress the payloads.
 
 OS2IOT then has a HTTP Push service that pushes the decoded payloads out to a receiver. To set OS2IOT up to send data to the Azure module, you need to set up a data-target in OS2IOT with a datatarget-URL and an Authorization header.
-The URL is a path to the `PostPayloads` function, that's like: `https://os2iot-v3xshh3xyxllq.azurewebsites.net/api/PostPayloads`
-You defined The Authorization header when installing this Azure module. It can be changed under Configuration where it has the name: `PostPayloadsAuthorizationKey`.
+The URL is a path to the `PostPayloads` function, that's like: `https://os2iot-v3xshh3xyxllq.azurewebsites.net/api/PostPayloads`.
+You defined The Authorization header when installing this Azure module. It can be changed At the Azure Functions under Configuration where it has the name: `PostPayloadsAuthorizationKey`.
 
 Payloads are received and saved directly down to the data lake as queue massages.
 
-Each 5 minute another function called `IngestQueuedPayloads`, asks for all messages and converts them to a CSV-stream (a comma separated file-format as a stream). The CSV gets saved into the data lake just for history and the csv gets send to the database in one bulk. 
-If data contains column names that are not defined in the database, then new columns will be added. And if the datatype has been changed on an already created column, the datatype will be updated.
+Each 5 minute another function called `IngestQueuedPayloads`, asks for all messages in the data lake and converts them to a CSV-stream (a comma separated file-format). The CSV gets saved into the data lake for history purpose, and the csv gets send to the database in one bulk.
+If data contains column names that are not defined in the database, new columns will be added. And if the datatype has been changed on an already created column, the datatype will be updated.
 
-All the fetched queue messages from the data lake, then gets deleted.
-If the function `IngestQueuedPayloads` or the database is not working properly, then messages will be saved up to 7 days before the oldest will expire. So if the database hasn't been working for 2 days, no data will be lost.
+All the ingested queue messages from the data lake gets deleted.
+If the function `IngestQueuedPayloads` or the database is not working properly, messages will be saved for up to 7 days before the oldest will expire. So if the database has been down for 2 days, no data will be lost.
 
 ### Cleaning data lake
 
-The function `CleanDataLake` gets called each day and deletes all data from the data lake that is older than 6 months. Months to go back, is defined when installing the Azure module as `MonthsToKeepDataInDataLake`. This setting can later be changed under `Configuration`.
+The function `CleanDataLake` gets called each day and deletes all data from the data lake that's older than 6 months.
+The amount of months to go back, is defined when installing the Azure module as `MonthsToKeepDataInDataLake = 6`. This setting can later be changed under the Azure Functions `Configuration`.
 
 ## Videos
 
@@ -51,13 +52,9 @@ How this module is used in Hillerød Municipality and how it's installed (rememb
       </a>
 </div>
 
-Detailed description of how this module fetches data from OS2IOT:
-<div align="left">
-      <a href="https://www.youtube.com/watch?v=cuDi3phDrAU">
-         <img src="https://img.youtube.com/vi/cuDi3phDrAU/0.jpg">
-      </a>
-</div>
+2022-05-27: [Detailed description of how this module fetches data from OS2IOT (in Danish)](https://youtu.be/cuDi3phDrAU)
 
+2022-05-26: [How to update the Azure module if a new version is released (in Danish)](https://youtu.be/esQRiZJ81_M)
 
 ## Installation
 
@@ -85,7 +82,7 @@ Data from payloads are saved exactly as the payload decoder in OS2IOT describes.
 | Payloads           | name                    | varchar   |
 | Payloads           | timeStamp               | datetime  |
 
-### Data from the OS2IOT API:
+### Data from the OS2IOT API
 
 | TABLE_NAME         | COLUMN_NAME             | DATA_TYPE |
 | :----------------- | :---------------------- | :-------- |
