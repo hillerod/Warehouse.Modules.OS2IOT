@@ -2,10 +2,10 @@
 
 ## Introduction
 
-With this module, you can easily setup an environment in Azure, to consume data from OS2IOT.
+With this Azure module, you can easily setup an environment in Azure, to consume data from OS2IOT.
  
 It can fetch data one or multiple times each day, from OS2IOT's API and save them in the database.
-It also fetches data from sensors. In a later version, data will also be refined into data per hour, data per day and data per month.
+It also fetches data from sensors. In a later version of this module, data will also be refined into data per hour, data per day and data per month.
 
 The module is build with [Bygdrift Warehouse](https://github.com/Bygdrift/Warehouse), that enables one to attach multiple modules within the same azure environment, that can collect and wash data from all kinds of services, in a cheap data lake and database.
 By saving data to a MS SQL database, it is:
@@ -182,7 +182,7 @@ In the data lake container with this modules name, there are three main folders:
 Messages are also saved into the data lake Queues: `os2iot-payloads`, containing payloads, ready to be refined and loaded into the database. If the modules stops working by an accident, data will continue to be stacked up as messages for up to seven days.
 
 # Updates
-- none yet
+- 0.4.0: Added OpenAPI so it is easy for a company to hook up directly to this service and fetch message queues directly from DataLake instead of getting data from database
 
 # License
 

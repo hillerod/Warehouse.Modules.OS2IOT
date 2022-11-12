@@ -1,5 +1,5 @@
 ﻿using Bygdrift.Warehouse;
-using Module.Services.Models;
+using Module.Services.OS2IOTModels;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 //Documentation: https://backend.os2iot.gate21.dk/api/v1/docs/#/
 namespace Module.Services
 {
-    public class ApiService
+    public class OS2IOTApiService
     {
         private HttpClient _client;
         public string token;
@@ -20,7 +20,7 @@ namespace Module.Services
 
         public AppBase<Settings> App { get; }
 
-        public ApiService(AppBase<Settings> app) => App = app;
+        public OS2IOTApiService(AppBase<Settings> app) => App = app;
 
         public HttpClient Client
         {
@@ -55,6 +55,9 @@ namespace Module.Services
 
         public async Task<IotDevice[]> GetIOTDevicesAsync(Applications applications)
         {
+            if (applications == null)
+                return null;
+
             var tasks = new List<Task<IotDevice>>();
             var res = new List<IotDevice>();
             var ids = applications.data.SelectMany(o => o.iotDevices).Select(p=> p.id);

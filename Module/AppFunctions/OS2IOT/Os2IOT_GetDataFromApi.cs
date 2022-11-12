@@ -5,24 +5,30 @@ using Module.Refines;
 using Module.Services;
 using System.Threading.Tasks;
 
-namespace Module.AppFunctions
+namespace Module.AppFunctions.OS2IOT
 {
-    public class GetDataFromApi
+    /// <summary>
+    /// Visits OS2IOT and gathers all relevant data and saves it to the warehouse
+    /// </summary>
+    public class Os2IOT_GetDataFromApi
     {
-        public GetDataFromApi(ILogger<GetDataFromApi> logger)
+        public Os2IOT_GetDataFromApi(ILogger<Os2IOT_GetDataFromApi> logger)
         {
             App = new AppBase<Settings>(logger);
-            ApiService = new ApiService(App);
+            ApiService = new OS2IOTApiService(App);
         }
 
         public AppBase<Settings> App { get; }
-        public ApiService ApiService { get; }
+        public OS2IOTApiService ApiService { get; }
 
-        [FunctionName(nameof(GetDataFromApi))]
+        [FunctionName(nameof(Os2IOT_GetDataFromApi))]
         public async Task Run([TimerTrigger("%OS2IOTApiScheduleExpression%")] TimerInfo myTimer)
         {
             var organizations = await ApiService.GetOrganizationsAsync();
             var applications = await ApiService.GetApplicationsAsync();
+            if (applications == null)
+                return;
+
             var models = await ApiService.GetDeviceModelsAsync();
             var iotDevices = await ApiService.GetIOTDevicesAsync(applications);
             var chirpstackGateways = await ApiService.GetChirpstackGatewaysAsync(organizations);

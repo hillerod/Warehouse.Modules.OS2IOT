@@ -12,7 +12,7 @@ Install the [Warehouse environment](https://github.com/Bygdrift/Warehouse/tree/m
 
 2022-01-28: [Update an already installed module, once a new update has been pushed to GitHub](https://www.youtube.com/watch?v=XywfV_n-320) (in Danish):
 
-## Setup the Warehouse environment with the portal:
+## Add this module through Azure Portal (easiest):
 
 [![Deploy To Azure](https://raw.githubusercontent.com/Bygdrift/Warehouse/master/Docs/Images/deploytoazureButton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fhillerod%2FWarehouse.Modules.OS2IOT%2Fmaster%2FDeploy%2FWarehouse.Modules.OS2IOT_ARM.json)
 [![Visualize](https://raw.githubusercontent.com/Bygdrift/Warehouse/master/Docs/Images/visualizebutton.svg)](http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fhillerod%2FWarehouse.Modules.OS2IOT%2Fmaster%2FDeploy%2FWarehouse.Modules.OS2IOT_ARM.json)
@@ -21,7 +21,7 @@ This will setup a Windows hosting plan and a function app that contains the soft
 
 If you have to change some settings, you can run the setup again, and it should not affect data, but better take backup to be sure.
 
-## Setup the environment with Azure CLI
+## Alternative: Add this module with Azure CLI
 
 You can also run the ARM from PowerShell.
 

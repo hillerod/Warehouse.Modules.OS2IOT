@@ -2,10 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Module;
 using Module.Services;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ModuleTests.Services
@@ -13,12 +10,12 @@ namespace ModuleTests.Services
     [TestClass]
     public class ServiceTests
     {
-        private readonly ApiService service;
+        private readonly OS2IOTApiService service;
         private readonly AppBase<Settings> app = new();
 
         public ServiceTests()
         {
-            service = new ApiService(app);
+            service = new OS2IOTApiService(app);
         }
 
         [TestMethod]

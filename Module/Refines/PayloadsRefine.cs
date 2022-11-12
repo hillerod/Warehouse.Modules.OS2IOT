@@ -1,13 +1,12 @@
 ﻿using Azure.Storage.Queues.Models;
-using Bygdrift.CsvTools;
-using Bygdrift.DataLakeTools;
+using Bygdrift.Tools.CsvTool;
+using Bygdrift.Tools.DataLakeTool;
 using Bygdrift.Warehouse;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web;
 
 /// <summary>
 /// A refine file, refines incomming data and save it to the public property 'Csv'
@@ -27,7 +26,7 @@ namespace Module.Refines
             var smallGuid = Convert.ToBase64String(Guid.NewGuid().ToByteArray()).Replace("/", string.Empty).Replace("+", string.Empty)[..10];
             var fileName = $"{app.LoadedLocal:yyyy-MM-dd-HH.mm.ss}_payload_{smallGuid}.csv";
             await app.DataLake.SaveCsvAsync(csv, "PayloadRefined", fileName, FolderStructure.DatePath);
-            app.Mssql.InserCsv(csv, "Payloads", false, false);
+            app.Mssql.InsertCsv(csv, "Payloads", false, false);
             return true;
         }
         

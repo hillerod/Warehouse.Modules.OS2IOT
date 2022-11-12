@@ -1,7 +1,6 @@
 ﻿using Bygdrift.Warehouse;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Module;
-using Module.Refines;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +8,6 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace ModuleTests.Refines
 {
@@ -29,7 +27,7 @@ namespace ModuleTests.Refines
         [TestMethod]
         public async Task StressSystem()
         {
-            var repeats = 1000;
+            var repeats = 10;
             var handler = new HttpClientHandler();
             var client = new HttpClient(handler);
             client.BaseAddress = new Uri(app.HostName);

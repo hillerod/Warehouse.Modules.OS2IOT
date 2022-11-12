@@ -1,0 +1,3 @@
+Der opstod en fejl: Service request failed "devstoreaccount1"
+    Slet mappe .vs
+    Slet indhold af Storage Emulator

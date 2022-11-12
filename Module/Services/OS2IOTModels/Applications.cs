@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Module.Services.Models
+namespace Module.Services.OS2IOTModels
 {
 
     public class Applications

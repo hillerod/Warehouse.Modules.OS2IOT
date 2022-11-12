@@ -1,4 +1,4 @@
-﻿using Bygdrift.Warehouse.Helpers.Attributes;
+﻿using Bygdrift.Warehouse.Attributes;
 
 namespace Module
 {
@@ -6,7 +6,7 @@ namespace Module
     {
         [ConfigSetting]
         public string OS2IOTApiBaseUrl { get; set; }
-        
+
         [ConfigSetting]
         public int MonthsToKeepDataInDataLake { get; set; }
 

@@ -1,7 +1,7 @@
-﻿using Bygdrift.CsvTools;
-using Bygdrift.DataLakeTools;
+﻿using Bygdrift.Tools.CsvTool;
+using Bygdrift.Tools.DataLakeTool;
 using Bygdrift.Warehouse;
-using Module.Services.Models;
+using Module.Services.OS2IOTModels;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
