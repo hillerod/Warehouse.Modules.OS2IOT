@@ -8,17 +8,17 @@ namespace Module.AppFunctions.OS2IOT
 {
     public class Os2IOT_IngestQueuedPayloads
     {
-        //public Os2IOT_IngestQueuedPayloads(ILogger<Os2IOT_IngestQueuedPayloads> logger) => App = new AppBase<Settings>(logger);
+        public Os2IOT_IngestQueuedPayloads(ILogger<Os2IOT_IngestQueuedPayloads> logger) => App = new AppBase<Settings>(logger);
 
         public AppBase<Settings> App { get; }
 
-        //[FunctionName(nameof(Os2IOT_IngestQueuedPayloads))]
-        //public async Task Run([TimerTrigger("%IngestQueuedPayloadsScheduleExpression%")] TimerInfo myTimer, ILogger log)
-        //{
-        //    App.DataLakeQueue.QueueName = "payloads";
-        //    var messages = await App.DataLakeQueue.GetMessagesAsync();
-        //    if (await PayloadsRefine.RefineAsync(App, messages))
-        //        await App.DataLakeQueue.DeleteMessagesAsync(messages);
-        //}
+        [FunctionName(nameof(Os2IOT_IngestQueuedPayloads))]
+        public async Task Run([TimerTrigger("%IngestQueuedPayloadsScheduleExpression%")] TimerInfo myTimer, ILogger log)
+        {
+            App.DataLakeQueue.QueueName = "payloads";
+            var messages = await App.DataLakeQueue.GetMessagesAsync();
+            if (await PayloadsRefine.RefineAsync(App, messages))
+                await App.DataLakeQueue.DeleteMessagesAsync(messages);
+        }
     }
 }

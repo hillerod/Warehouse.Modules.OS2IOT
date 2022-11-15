@@ -32,7 +32,7 @@ namespace ModuleTests.Refines
             var client = new HttpClient(handler);
             client.BaseAddress = new Uri(app.HostName);
             client.Timeout = new TimeSpan(1, 0, 0);
-            client.DefaultRequestHeaders.Add("Authorization", "Bearer " + app.Settings.PostPayloadsAuthorizationKey);
+            client.DefaultRequestHeaders.Add("Authorization", "Bearer " + app.Settings.OS2IOTPostPayloadsAuthorizationKey);
             var tasks = new List<Task<HttpResponseMessage>>();
             var start = DateTime.Now;
 

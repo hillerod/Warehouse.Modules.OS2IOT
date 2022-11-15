@@ -17,6 +17,6 @@ namespace Module
         public string OS2IOTApiPassword { get; set; }
 
         [ConfigSecret]
-        public string PostPayloadsAuthorizationKey { get; set; }
+        public string OS2IOTPostPayloadsAuthorizationKey { get; set; }
     }
 }

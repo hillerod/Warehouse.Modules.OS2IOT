@@ -119,7 +119,7 @@ namespace Module.AppFunctions.API
             if (req.Headers.TryGetValue("Authorization", out var value))
             {
                 var authorization = value.FirstOrDefault()?.Replace("Bearer", string.Empty).Trim();
-                return authorization == App.Settings.PostPayloadsAuthorizationKey;
+                return authorization == App.Settings.OS2IOTPostPayloadsAuthorizationKey;
             }
             return false;
         }
