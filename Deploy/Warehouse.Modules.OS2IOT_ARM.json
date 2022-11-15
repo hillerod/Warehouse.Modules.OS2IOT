@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.6.11.53198",
-      "templateHash": "7046074137012534460"
+      "version": "0.11.1.770",
+      "templateHash": "8564270021535053224"
     }
   },
   "parameters": {
@@ -20,7 +20,7 @@
     },
     "MonthsToKeepDataInDataLake": {
       "type": "int",
-      "defaultValue": 6,
+      "defaultValue": 12,
       "metadata": {
         "description": "How many months back, data should be stored in the Data Lake for safety."
       }
@@ -36,7 +36,7 @@
       "type": "string",
       "defaultValue": "0 0 1 * * *",
       "metadata": {
-        "description": "How often this module should fetch data from API. This example runs each night at 1AM UTC. Read more here: https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer?tabs=csharp#ncrontab-expressions"
+        "description": "How often this module should fetch data from API. This example runs each night at 1AM UTC. Read more here: https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer"
       }
     },
     "OS2IOTApiUserName": {
@@ -55,6 +55,13 @@
       "type": "secureString",
       "metadata": {
         "description": "The authorizationKey used in OS2IOT"
+      }
+    },
+    "IngestQueuedPayloadsScheduleExpression": {
+      "type": "string",
+      "defaultValue": "0 */1 * * * *",
+      "metadata": {
+        "description": "How often queued payloads should be loaded to db. This example runs each 5 minutes. Read more here: https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer"
       }
     },
     "timeZoneId": {
@@ -148,6 +155,10 @@
             {
               "name": "OS2IOTApiBaseUrl",
               "value": "[parameters('OS2IOTApiBaseUrl')]"
+            },
+            {
+              "name": "IngestQueuedPayloadsScheduleExpression",
+              "value": "[parameters('IngestQueuedPayloadsScheduleExpression')]"
             },
             {
               "name": "OS2IOTApiScheduleExpression",
