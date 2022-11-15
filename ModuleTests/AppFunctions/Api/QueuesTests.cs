@@ -5,9 +5,8 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Module.AppFunctions.API;
+using Module.AppFunctions;
 using Module.AppFunctions.Helpers.Models;
-using Module.AppFunctions.OS2IOT;
 using Moq;
 using System;
 using System.Collections;
@@ -21,13 +20,13 @@ namespace ModuleTests.AppFunctions.Api
     [TestClass]
     public class QueuesTests
     {
-        private readonly Mock<ILogger<QueuesApi>> loggerMock = new();
-        private readonly QueuesApi function;
+        private readonly Mock<ILogger<ApiQueues>> loggerMock = new();
+        private readonly ApiQueues function;
         private readonly AppBase<Settings> app;
 
         public QueuesTests()
         {
-            function = new QueuesApi(loggerMock.Object);
+            function = new ApiQueues(loggerMock.Object);
             app = new AppBase<Settings>();
             app.DataLakeQueue.QueueName = "payloads";
         }
@@ -35,7 +34,7 @@ namespace ModuleTests.AppFunctions.Api
         [TestMethod]
         public async Task GetQueues()
         {
-            var res = await function.Get(default);
+            var res = await function.QueuesGet(default);
             var okResult = res as OkObjectResult;
             Assert.IsNotNull(okResult);
 

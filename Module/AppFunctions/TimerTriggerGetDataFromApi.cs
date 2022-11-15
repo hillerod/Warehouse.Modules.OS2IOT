@@ -5,14 +5,14 @@ using Module.Refines;
 using Module.Services;
 using System.Threading.Tasks;
 
-namespace Module.AppFunctions.OS2IOT
+namespace Module.AppFunctions
 {
     /// <summary>
     /// Visits OS2IOT and gathers all relevant data and saves it to the warehouse
     /// </summary>
-    public class Os2IOT_GetDataFromApi
+    public class TimerTriggerGetDataFromApi
     {
-        public Os2IOT_GetDataFromApi(ILogger<Os2IOT_GetDataFromApi> logger)
+        public TimerTriggerGetDataFromApi(ILogger<TimerTriggerGetDataFromApi> logger)
         {
             App = new AppBase<Settings>(logger);
             ApiService = new OS2IOTApiService(App);
@@ -21,7 +21,7 @@ namespace Module.AppFunctions.OS2IOT
         public AppBase<Settings> App { get; }
         public OS2IOTApiService ApiService { get; }
 
-        [FunctionName(nameof(Os2IOT_GetDataFromApi))]
+        [FunctionName(nameof(TimerTriggerGetDataFromApi))]
         public async Task Run([TimerTrigger("%OS2IOTApiScheduleExpression%")] TimerInfo myTimer)
         {
             var organizations = await ApiService.GetOrganizationsAsync();

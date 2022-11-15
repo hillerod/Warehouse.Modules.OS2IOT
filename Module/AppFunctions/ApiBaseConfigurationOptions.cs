@@ -9,9 +9,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 //https://github.com/Azure/azure-functions-openapi-extension/blob/main/docs/openapi-core.md
-namespace Module.AppFunctions.API
+namespace Module.AppFunctions
 {
-    public class BaseApiConfigurationOptions : IOpenApiConfigurationOptions
+    public class ApiBaseConfigurationOptions : IOpenApiConfigurationOptions
     {
         public OpenApiInfo Info { get; set; } = new OpenApiInfo()
         {

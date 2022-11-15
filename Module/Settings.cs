@@ -7,7 +7,7 @@ namespace Module
         [ConfigSetting]
         public string OS2IOTApiBaseUrl { get; set; }
 
-        [ConfigSetting]
+        [ConfigSetting(Default=10000)]
         public int MonthsToKeepDataInDataLake { get; set; }
 
         [ConfigSecret]

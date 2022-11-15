@@ -4,18 +4,21 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Module.Refines;
 
-namespace Module.AppFunctions.OS2IOT
+namespace Module.AppFunctions
 {
-    public class Os2IOT_IngestQueuedPayloads
+    public class TimerTriggerIngestQueuedPayloads
     {
-        public Os2IOT_IngestQueuedPayloads(ILogger<Os2IOT_IngestQueuedPayloads> logger) => App = new AppBase<Settings>(logger);
+        public TimerTriggerIngestQueuedPayloads(ILogger<TimerTriggerIngestQueuedPayloads> logger)
+        {
+            App = new AppBase<Settings>(logger);
+            App.DataLakeQueue.QueueName = "payloads";
+        }
 
         public AppBase<Settings> App { get; }
 
-        [FunctionName(nameof(Os2IOT_IngestQueuedPayloads))]
+        [FunctionName(nameof(TimerTriggerIngestQueuedPayloads))]
         public async Task Run([TimerTrigger("%IngestQueuedPayloadsScheduleExpression%")] TimerInfo myTimer, ILogger log)
         {
-            App.DataLakeQueue.QueueName = "payloads";
             var messages = await App.DataLakeQueue.GetMessagesAsync();
             if (await PayloadsRefine.RefineAsync(App, messages))
                 await App.DataLakeQueue.DeleteMessagesAsync(messages);

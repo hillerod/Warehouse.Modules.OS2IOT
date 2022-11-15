@@ -1,7 +1,7 @@
 ﻿using Bygdrift.Tools.DataLakeTool;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Module.AppFunctions.OS2IOT;
+using Module.AppFunctions;
 using Moq;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,10 +11,10 @@ namespace ModuleTests.AppFunctions.OS2IOT
     [TestClass]
     public class QueuesTests
     {
-        private readonly Mock<ILogger<Os2IOT_GetDataFromApi>> loggerMock = new();
-        private readonly Os2IOT_GetDataFromApi function;
+        private readonly Mock<ILogger<TimerTriggerGetDataFromApi>> loggerMock = new();
+        private readonly TimerTriggerGetDataFromApi function;
 
-        public QueuesTests() => function = new Os2IOT_GetDataFromApi(loggerMock.Object);
+        public QueuesTests() => function = new TimerTriggerGetDataFromApi(loggerMock.Object);
 
         [TestMethod]
         public async Task TimerTrigger()

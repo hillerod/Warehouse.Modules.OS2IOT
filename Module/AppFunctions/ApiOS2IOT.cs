@@ -12,14 +12,14 @@ using Bygdrift.Warehouse;
 using Module.Services.OS2IOTModels;
 using Module.Services;
 
-namespace Module.AppFunctions.API
+namespace Module.AppFunctions
 {
     public class OS2IOTApi
     {
         public readonly AppBase<Settings> App;
         private OS2IOTApiService service;
 
-        public OS2IOTApi(ILogger<QueuesApi> logger)
+        public OS2IOTApi(ILogger<ApiQueues> logger)
         {
             App = new AppBase<Settings>(logger);
             App.DataLakeQueue.QueueName = "payloads";
