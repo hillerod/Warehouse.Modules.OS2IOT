@@ -25,6 +25,7 @@ namespace Module.AppFunctions
         {
             App = new AppBase<Settings>(logger);
             App.DataLakeQueue.QueueName = "payloads";
+            App.Log.LogInformation($"CTOR PATH: {App.DataLakeQueue.ConnectionString}, container: {App.DataLakeQueue.Container}, name: {App.DataLakeQueue.Name}");
         }
 
         public readonly AppBase<Settings> App;
@@ -106,13 +107,15 @@ namespace Module.AppFunctions
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "No modules found")]
         public async Task<IActionResult> QueuesTest([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "queues/test/{testPath}")] HttpRequest req, string testPath)
         {
+            App.Log.LogInformation($"QueuesTest PATH: {App.DataLakeQueue.ConnectionString}, container: {App.DataLakeQueue.Container}, name: {App.DataLakeQueue.Name}");
+
             var testQuery = req?.Query["testQuery"];
 
             using var reader = new StreamReader(req.Body);
             var body = await reader.ReadToEndAsync();
 
             //return new OkObjectResult($"testPath: {testPath}, testQuery: {testQuery}, Body: {body}.");
-            return new OkObjectResult($"path: {App.DataLakeQueue.ConnectionString}");
+            return new OkObjectResult($"path: {App.DataLakeQueue.ConnectionString}, container: {App.DataLakeQueue.Container}, name: {App.DataLakeQueue.Name}");
         }
 
         private bool OS2IOTAuthorized(HttpRequest req)
