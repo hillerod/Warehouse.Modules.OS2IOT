@@ -20,6 +20,9 @@
         "OS2IOTApiPassword": {
             "value": "Password to OS2IOT"
         },
+        "IngestQueuedPayloadsScheduleExpression": {
+            "value": "0 */1 * * * *"
+        },
         "PostPayloadsAuthorizationKey": {
             "value": "The authorizationKey inserted in OS2IOT"
         },
