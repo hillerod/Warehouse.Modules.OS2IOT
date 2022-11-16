@@ -25,7 +25,7 @@ namespace Module.AppFunctions
         {
             App = new AppBase<Settings>(logger);
             App.DataLakeQueue.QueueName = "payloads";
-            App.Log.LogInformation($"CTOR PATH: {App.DataLakeQueue.ConnectionString}, container: {App.DataLakeQueue.Container}, name: {App.DataLakeQueue.Name}");
+            App.Log.LogInformation($"CTOR local: {App.IsRunningLocal}, PATH: {App.DataLakeQueue.ConnectionString}, container: {App.DataLakeQueue.Container}, name: {App.DataLakeQueue.Name}");
         }
 
         public readonly AppBase<Settings> App;
@@ -113,9 +113,17 @@ namespace Module.AppFunctions
 
             using var reader = new StreamReader(req.Body);
             var body = await reader.ReadToEndAsync();
-
             //return new OkObjectResult($"testPath: {testPath}, testQuery: {testQuery}, Body: {body}.");
-            return new OkObjectResult($"path: {App.DataLakeQueue.ConnectionString}, container: {App.DataLakeQueue.Container}, name: {App.DataLakeQueue.Name}");
+            
+            //var res = "path: " + App.DataLakeQueue.ConnectionString;
+            var res = "\tcontainer: " + App.DataLakeQueue.Container;
+            res += "\tName: " + App.DataLakeQueue.Name;
+            //res += "\tmssql: " + App.Mssql.ConnectionString;
+
+            //var app2 = new AppBase<Settings>();
+            //res += "\tapp2Path: " + App.DataLakeQueue.ConnectionString;
+            
+            return new OkObjectResult(res);
         }
 
         private bool OS2IOTAuthorized(HttpRequest req)
