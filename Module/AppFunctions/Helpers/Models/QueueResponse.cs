@@ -22,6 +22,20 @@ namespace Module.AppFunctions.Helpers.Models
             Id = message.MessageId;
         }
 
+        public QueueResponse(Azure.Storage.Queues.Models.PeekedMessage message)
+        {
+            if (message == null)
+                throw new ArgumentNullException(nameof(message));
+
+            var decodedBodyBase64 = Encoding.UTF8.GetString(message.Body);
+            Body = decodedBodyBase64;
+            //Body = Encoding.UTF8.GetString(Convert.FromBase64String(decodedBodyBase64));
+
+            Created = message.InsertedOn;
+            Expires = message.ExpiresOn;
+            Id = message.MessageId;
+        }
+
         public string Body { get; set; }
         public string Id { get; set; }
         public DateTimeOffset? Created { get; set; }

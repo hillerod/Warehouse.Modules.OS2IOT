@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.11.1.770",
-      "templateHash": "8564270021535053224"
+      "templateHash": "4700692370578275142"
     }
   },
   "parameters": {
@@ -51,7 +51,7 @@
         "description": "Password to OS2IOT. Can be left blank, but then data from OS2IOT API, will not be fetched."
       }
     },
-    "PostPayloadsAuthorizationKey": {
+    "OS2IOTPostPayloadsAuthorizationKey": {
       "type": "secureString",
       "metadata": {
         "description": "The authorizationKey used in OS2IOT"
@@ -69,6 +69,13 @@
       "defaultValue": "Romance Standard Time",
       "metadata": {
         "description": "\"Romance Standard Time\" is Copenhagen. For other timezones, find them here: https://raw.githubusercontent.com/Bygdrift/Warehouse/master/Docs/TimeZoneIds.csv"
+      }
+    },
+    "CultureName": {
+      "type": "string",
+      "defaultValue": "da-DK",
+      "metadata": {
+        "description": "\"da-DK\" is Denmark."
       }
     }
   },
@@ -97,7 +104,7 @@
       "apiVersion": "2019-09-01",
       "name": "[format('{0}/{1}', format('keyvault-{0}', uniqueString(resourceGroup().id)), format('Secret--{0}--PostPayloadsAuthorizationKey', parameters('ModuleName')))]",
       "properties": {
-        "value": "[parameters('PostPayloadsAuthorizationKey')]"
+        "value": "[parameters('OS2IOTPostPayloadsAuthorizationKey')]"
       }
     },
     {
@@ -167,6 +174,10 @@
             {
               "name": "TimeZoneId",
               "value": "[parameters('timeZoneId')]"
+            },
+            {
+              "name": "CultureName",
+              "value": "[parameters('CultureName')]"
             },
             {
               "name": "VaultUri",

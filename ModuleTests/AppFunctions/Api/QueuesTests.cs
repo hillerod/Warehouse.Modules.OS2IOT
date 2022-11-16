@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Module.AppFunctions;
 using Module.AppFunctions.Helpers.Models;
 using Moq;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -32,24 +33,33 @@ namespace ModuleTests.AppFunctions.Api
         }
 
         [TestMethod]
-        public async Task GetQueues()
+        public async Task GetAndDelete()
         {
-            var res = await function.QueuesGet(default);
+            await app.DataLakeQueue.DeleteMessagesAsync();
+            var res0 = GetBody(await function.QueuesPeek(default));
+            Assert.IsNull(res0);
+            await app.DataLakeQueue.AddMessageAsync(JsonConvert.SerializeObject(new { data = "content", date = DateTime.Now }));
+            var res1 = GetBody(await function.QueuesPeek(default));
+            Assert.AreEqual(1, res1.Count());
+            var res2 = GetBody(await function.QueuesGetAndDelete(default));
+            Assert.AreEqual(1, res2.Count());
+            var res3 = GetBody(await function.QueuesGetAndDelete(default));
+            Assert.IsNull(res3);
+            var errors = function.App.Log.GetErrorsAndCriticals();
+            Assert.AreEqual(0, errors.Count());
+        }
+
+        private static IEnumerable<string> GetBody(IActionResult res)
+        {
             var okResult = res as OkObjectResult;
             Assert.IsNotNull(okResult);
-
-            var queues = (okResult.Value as IEnumerable<QueueResponse>)?.Select(o=> o.Body);
-            //Assert.IsNotNull(queues);
-
-            var errors = function.App.Log.GetErrorsAndCriticals().ToList();
-            Assert.AreEqual(0, errors.Count);
+            return (okResult.Value as IEnumerable<QueueResponse>)?.Select(o => o.Body);
         }
 
         [TestMethod]
         public async Task AddDataToDataLakeQueue()
         {
-            var a = await app.DataLakeQueue.AddMessageAsync("Hejsaæøå2");
-
+            var res = await app.DataLakeQueue.AddMessageAsync(JsonConvert.SerializeObject(new { data = "content", date = DateTime.Now }));
         }
 
         [TestMethod]

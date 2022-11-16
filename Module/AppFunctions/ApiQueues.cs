@@ -30,14 +30,14 @@ namespace Module.AppFunctions
 
         public readonly AppBase<Settings> App;
 
-        [FunctionName(nameof(QueuesGet))]
-        [OpenApiOperation(operationId: nameof(QueuesGet), tags: new[] { "Queues" }, Summary = "Get all queues from the server", Visibility = OpenApiVisibilityType.Important)]
+        [FunctionName(nameof(QueuesGetAndDelete))]
+        [OpenApiOperation(operationId: nameof(QueuesGetAndDelete), tags: new[] { "Queues" }, Summary = "Get all queues from the server and deletes them", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiParameter(name: "amount", In = ParameterLocation.Query, Required = false, Type = typeof(int?), Description = "The amount of fetched messages. Default = 0 means return all", Visibility = OpenApiVisibilityType.Undefined)]
-        [OpenApiParameter(name: "deleteQueues", In = ParameterLocation.Query, Required = false, Type = typeof(bool), Description = "Wether the fetched queues should be deleted from the server. Default = false")]
+        //[OpenApiParameter(name: "deleteQueues", In = ParameterLocation.Query, Required = false, Type = typeof(bool), Description = "Wether the fetched queues should be deleted from the server. Default = false")]
         [OpenApiSecurity("Azure Authorization", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query, Description = "A function app key from Azure")]  //https://devkimchi.com/2021/10/06/securing-azure-function-endpoints-via-openapi-auth/
-        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(IEnumerable<QueueResponse>), Summary = "successful operation", Description = "successful operation")]
-        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "No modules found")]
-        public async Task<IActionResult> QueuesGet([HttpTrigger(AuthorizationLevel.Function, "get", Route = "queues/Get")] HttpRequest req)
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(List<QueueResponse>), Summary = "successful operation", Description = "successful operation")]
+        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Description = "No messages found")]
+        public async Task<IActionResult> QueuesGetAndDelete([HttpTrigger(AuthorizationLevel.Function, "get", Route = "queues/GetAndDelete")] HttpRequest req)
         {
             var amount = GetNullableInt(req?.Query["amount"]);
             var queues = (await App.DataLakeQueue.GetMessagesAsync(amount))?.ToList();
@@ -49,15 +49,36 @@ namespace Module.AppFunctions
             foreach (var queue in queues)
                 res.Add(new QueueResponse(queue));
 
-            if (req?.Query["deleteQueues"].ToString().ToLower() == "true")
-                await App.DataLakeQueue.DeleteMessagesAsync(queues);
+            await App.DataLakeQueue.DeleteMessagesAsync(queues);
+
+            return new OkObjectResult(res);
+        }
+
+        [FunctionName(nameof(QueuesPeek))]
+        [OpenApiOperation(operationId: nameof(QueuesPeek), tags: new[] { "Queues" }, Summary = "Get all queues from the server without deleting them", Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiParameter(name: "amount", In = ParameterLocation.Query, Required = false, Type = typeof(int?), Description = "The amount of fetched messages. Default = 0 means return all", Visibility = OpenApiVisibilityType.Undefined)]
+        //[OpenApiParameter(name: "deleteQueues", In = ParameterLocation.Query, Required = false, Type = typeof(bool), Description = "Wether the fetched queues should be deleted from the server. Default = false")]
+        [OpenApiSecurity("Azure Authorization", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query, Description = "A function app key from Azure")]  //https://devkimchi.com/2021/10/06/securing-azure-function-endpoints-via-openapi-auth/
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(List<QueueResponse>), Summary = "successful operation", Description = "successful operation")]
+        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Description = "No messages found")]
+        public async Task<IActionResult> QueuesPeek([HttpTrigger(AuthorizationLevel.Function, "get", Route = "queues/peek")] HttpRequest req)
+        {
+            var amount = GetNullableInt(req?.Query["amount"]);
+            var queues = (await App.DataLakeQueue.PeekMessagesAsync(amount));
+            if (queues == null)
+                return new OkObjectResult(default);
+
+            var res = new List<QueueResponse>();
+            foreach (var queue in queues)
+                res.Add(new QueueResponse(queue));
 
             return new OkObjectResult(res);
         }
 
         //God dok: https://www.ais.com/self-documenting-azure-functions-with-c-and-openapi-part-two/
         [FunctionName(nameof(QueuesAdd))]
-        [OpenApiOperation(operationId: nameof(QueuesAdd), tags: new[] { "Queues" }, Summary = "Used from OS2IOT to parse data", Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiOperation(operationId: nameof(QueuesAdd), tags: new[] { "Queues" }, Summary = "Used from OS2IOT to parse data. To tst this, the OS2IOT_Authorization key has to be set", Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiRequestBody("application/json", typeof(string), Description = "The json that comes from OS2IOT")]
         [OpenApiSecurity(schemeName: "OS2IOT_Authorization", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header, Description = "Used in in a POST API-call from OS2IOT. Has to be special, because OS2IOT has a specific way of authorization. The key comes from OS2IOT")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(string), Description = "The OK response")]
         public async Task<IActionResult> QueuesAdd([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "queues/Add")] HttpRequest req)
@@ -80,7 +101,7 @@ namespace Module.AppFunctions
 
         [FunctionName(nameof(QueuesAddTest))]
         [OpenApiOperation(operationId: nameof(QueuesAddTest), tags: new[] { "Tests" }, Summary = "Add a test queue", Visibility = OpenApiVisibilityType.Important)]
-        [OpenApiParameter(name: "message", In = ParameterLocation.Query, Required = false, Type = typeof(string), Summary = "A test on content. By default = 'Test'")]
+        [OpenApiParameter(name: "message", In = ParameterLocation.Query, Required = false, Type = typeof(string), Description = "A test on content. By default = 'Test'")]
         [OpenApiSecurity("Azure Authorization", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query, Description = "A function app key from Azure")]  //https://devkimchi.com/2021/10/06/securing-azure-function-endpoints-via-openapi-auth/
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Azure.Storage.Queues.Models.SendReceipt), Summary = "successful operation", Description = "successful operation")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "No modules found")]
@@ -99,8 +120,8 @@ namespace Module.AppFunctions
 
         [FunctionName(nameof(QueuesTest))]
         [OpenApiOperation(operationId: nameof(QueuesTest), tags: new[] { "Tests" }, Summary = "Hello world", Visibility = OpenApiVisibilityType.Important)]
-        [OpenApiParameter(name: "testPath", In = ParameterLocation.Path, Required = false, Type = typeof(string), Summary = "A test")]
-        [OpenApiParameter(name: "testQuery", In = ParameterLocation.Query, Required = false, Type = typeof(string), Summary = "A test")]
+        [OpenApiParameter(name: "testPath", In = ParameterLocation.Path, Required = false, Type = typeof(string), Description = "A test")]
+        [OpenApiParameter(name: "testQuery", In = ParameterLocation.Query, Required = false, Type = typeof(string), Description = "A test")]
         [OpenApiSecurity("Azure Authorization", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query, Description = "A function app key from Azure")]  //https://devkimchi.com/2021/10/06/securing-azure-function-endpoints-via-openapi-auth/
         [OpenApiRequestBody("text/plain", typeof(string))]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string), Description = "The OK response")]
@@ -113,17 +134,16 @@ namespace Module.AppFunctions
 
             using var reader = new StreamReader(req.Body);
             var body = await reader.ReadToEndAsync();
-            //return new OkObjectResult($"testPath: {testPath}, testQuery: {testQuery}, Body: {body}.");
-            
+            return new OkObjectResult($"testPath: {testPath}, testQuery: {testQuery}, Body: {body}.");
+
             //var res = "path: " + App.DataLakeQueue.ConnectionString;
-            var res = "\tcontainer: " + App.DataLakeQueue.Container;
-            res += "\tName: " + App.DataLakeQueue.Name;
+            //res += "\tcontainer: " + App.DataLakeQueue.Container;
+            //res += "\tName: " + App.DataLakeQueue.Name;
             //res += "\tmssql: " + App.Mssql.ConnectionString;
 
             //var app2 = new AppBase<Settings>();
             //res += "\tapp2Path: " + App.DataLakeQueue.ConnectionString;
-            
-            return new OkObjectResult(res);
+            //return new OkObjectResult(res);
         }
 
         private bool OS2IOTAuthorized(HttpRequest req)

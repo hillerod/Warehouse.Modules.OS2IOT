@@ -20,14 +20,17 @@
         "OS2IOTApiPassword": {
             "value": "Password to OS2IOT"
         },
+        "OS2IOTPostPayloadsAuthorizationKey": {
+            "value": "The authorizationKey inserted in OS2IOT"
+        },
         "IngestQueuedPayloadsScheduleExpression": {
             "value": "0 */1 * * * *"
         },
-        "PostPayloadsAuthorizationKey": {
-            "value": "The authorizationKey inserted in OS2IOT"
-        },
-        "TimeZoneId": {
-            "value": "Romance Standard Time"
-        }
+      "TimeZoneId": {
+        "value": "Romance Standard Time"
+      },
+      "CultureName": {
+        "value": "da-DK"
+      }
     }
 }
