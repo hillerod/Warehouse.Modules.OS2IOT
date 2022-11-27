@@ -43,6 +43,10 @@ If the function `IngestQueuedPayloads` or the database is not working properly, 
 The function `CleanDataLake` gets called each day and deletes all data from the data lake that's older than 6 months.
 The amount of months to go back, is defined when installing the Azure module as `MonthsToKeepDataInDataLake = 6`. This setting can later be changed under the Azure Functions `Configuration`.
 
+## Contact
+
+For information or consultant hours, please write to bygdrift@gmail.com.
+
 ## Videos
 
 How this module is used in Hillerød Municipality and how it's installed (remember first to install the [Bygdrift Warehouse base module](https://github.com/Bygdrift/Warehouse)):
@@ -59,7 +63,6 @@ How this module is used in Hillerød Municipality and how it's installed (rememb
 ## Installation
 
 All modules can be installed and facilitated with ARM templates (Azure Resource Management): [Use ARM templates to setup and maintain this module](https://github.com/hillerod/Warehouse.Modules.OS2IOT/blob/master/Deploy).
-
 
 ## Database content
 
