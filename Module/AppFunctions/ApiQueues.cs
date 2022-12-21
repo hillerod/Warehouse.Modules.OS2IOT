@@ -16,6 +16,10 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Linq;
 using Module.AppFunctions.Helpers.Models;
+using System;
+using System.Text;
+using Azure;
+using System.Text.Json;
 
 namespace Module.AppFunctions
 {
@@ -57,20 +61,31 @@ namespace Module.AppFunctions
         [FunctionName(nameof(QueuesPeek))]
         [OpenApiOperation(operationId: nameof(QueuesPeek), tags: new[] { "Queues" }, Summary = "Get all queues from the server without deleting them", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiParameter(name: "amount", In = ParameterLocation.Query, Required = false, Type = typeof(int?), Description = "The amount of fetched messages. Default = 0 means return all", Visibility = OpenApiVisibilityType.Undefined)]
+        [OpenApiParameter(name: "deviceId", In = ParameterLocation.Query, Required = false, Type = typeof(string), Description = "The device id to return. Default = null means return all", Visibility = OpenApiVisibilityType.Undefined)]
         //[OpenApiParameter(name: "deleteQueues", In = ParameterLocation.Query, Required = false, Type = typeof(bool), Description = "Wether the fetched queues should be deleted from the server. Default = false")]
         [OpenApiSecurity("Azure Authorization", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query, Description = "A function app key from Azure")]  //https://devkimchi.com/2021/10/06/securing-azure-function-endpoints-via-openapi-auth/
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(List<QueueResponse>), Summary = "successful operation", Description = "successful operation")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Description = "No messages found")]
         public async Task<IActionResult> QueuesPeek([HttpTrigger(AuthorizationLevel.Function, "get", Route = "queues/peek")] HttpRequest req)
         {
+            var res = new List<QueueResponse>();
             var amount = GetNullableInt(req?.Query["amount"]);
+            string deviceId = req?.Query["deviceId"];
             var queues = (await App.DataLakeQueue.PeekMessagesAsync(amount));
             if (queues == null)
                 return new OkObjectResult(default);
 
-            var res = new List<QueueResponse>();
             foreach (var queue in queues)
-                res.Add(new QueueResponse(queue));
+                if (string.IsNullOrEmpty(deviceId))
+                    res.Add(new QueueResponse(queue));
+                else
+                {
+                    var json = Encoding.ASCII.GetString(queue.Body);
+                    var deviceIdFromJson = JObject.Parse(json).SelectToken("$.deviceId").ToString();
+                    
+                    if (deviceIdFromJson.Equals(deviceId, StringComparison.OrdinalIgnoreCase))
+                        res.Add(new QueueResponse(queue));
+                }
 
             return new OkObjectResult(res);
         }

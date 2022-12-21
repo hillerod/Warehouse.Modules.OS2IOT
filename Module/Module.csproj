@@ -3,7 +3,7 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<AzureFunctionsVersion>v4</AzureFunctionsVersion>
 		<OutputType>Library</OutputType>
-		<Version>0.4.5</Version>
+		<Version>0.4.6</Version>
 		<PackageId>hillerod.Warehouse.Modules.OS2IOT</PackageId>
 		<Authors>Kenboc</Authors>
 		<Company>Hillerød Kommune</Company>
@@ -24,9 +24,4 @@
 			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</None>
 	</ItemGroup>
-
-
-	<!--<ItemGroup>
-	  <ProjectReference Include="..\..\..\Warehouse\Warehouse\Warehouse.csproj" />
-	</ItemGroup>-->
 </Project>
