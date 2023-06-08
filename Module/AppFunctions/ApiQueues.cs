@@ -16,10 +16,6 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Linq;
 using Module.AppFunctions.Helpers.Models;
-using System;
-using System.Text;
-using Azure;
-using System.Text.Json;
 
 namespace Module.AppFunctions
 {
@@ -37,6 +33,7 @@ namespace Module.AppFunctions
         [FunctionName(nameof(QueuesGetAndDelete))]
         [OpenApiOperation(operationId: nameof(QueuesGetAndDelete), tags: new[] { "Queues" }, Summary = "Get all queues from the server and deletes them", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiParameter(name: "amount", In = ParameterLocation.Query, Required = false, Type = typeof(int?), Description = "The amount of fetched messages. Default = 0 means return all", Visibility = OpenApiVisibilityType.Undefined)]
+        //[OpenApiParameter(name: "jsonContains", In = ParameterLocation.Query, Required = false, Type = typeof(string), Description = "Looks if json contains the searched pattern. Default = null means return all", Visibility = OpenApiVisibilityType.Undefined)]
         //[OpenApiParameter(name: "deleteQueues", In = ParameterLocation.Query, Required = false, Type = typeof(bool), Description = "Wether the fetched queues should be deleted from the server. Default = false")]
         [OpenApiSecurity("Azure Authorization", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query, Description = "A function app key from Azure")]  //https://devkimchi.com/2021/10/06/securing-azure-function-endpoints-via-openapi-auth/
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(List<QueueResponse>), Summary = "successful operation", Description = "successful operation")]
@@ -45,13 +42,26 @@ namespace Module.AppFunctions
         {
             var amount = GetNullableInt(req?.Query["amount"]);
             var queues = (await App.DataLakeQueue.GetMessagesAsync(amount))?.ToList();
+            //string jsonContains = req?.Query["jsonContains"];
 
             if (queues == null)
                 return new OkObjectResult(default);
 
             var res = new List<QueueResponse>();
             foreach (var queue in queues)
+            {
                 res.Add(new QueueResponse(queue));
+
+                ///The following is not possible. Quesus are first in, first out.
+                //if (string.IsNullOrEmpty(jsonContains))
+                //    res.Add(new QueueResponse(queue));
+                //else
+                //{
+                //    var json = Encoding.ASCII.GetString(queue.Body);
+                //    if (json.Contains(jsonContains, StringComparison.OrdinalIgnoreCase))
+                //        res.Add(new QueueResponse(queue));
+                //}
+            }
 
             await App.DataLakeQueue.DeleteMessagesAsync(queues);
 
@@ -61,7 +71,7 @@ namespace Module.AppFunctions
         [FunctionName(nameof(QueuesPeek))]
         [OpenApiOperation(operationId: nameof(QueuesPeek), tags: new[] { "Queues" }, Summary = "Get all queues from the server without deleting them", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiParameter(name: "amount", In = ParameterLocation.Query, Required = false, Type = typeof(int?), Description = "The amount of fetched messages. Default = 0 means return all", Visibility = OpenApiVisibilityType.Undefined)]
-        [OpenApiParameter(name: "jsonContains", In = ParameterLocation.Query, Required = false, Type = typeof(string), Description = "Looks if json contains the seached pattern. Default = null means return all", Visibility = OpenApiVisibilityType.Undefined)]
+        //[OpenApiParameter(name: "jsonContains", In = ParameterLocation.Query, Required = false, Type = typeof(string), Description = "Looks if json contains the searched pattern. Default = null means return all", Visibility = OpenApiVisibilityType.Undefined)]
         //[OpenApiParameter(name: "deleteQueues", In = ParameterLocation.Query, Required = false, Type = typeof(bool), Description = "Wether the fetched queues should be deleted from the server. Default = false")]
         [OpenApiSecurity("Azure Authorization", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query, Description = "A function app key from Azure")]  //https://devkimchi.com/2021/10/06/securing-azure-function-endpoints-via-openapi-auth/
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(List<QueueResponse>), Summary = "successful operation", Description = "successful operation")]
@@ -70,27 +80,36 @@ namespace Module.AppFunctions
         {
             var res = new List<QueueResponse>();
             var amount = GetNullableInt(req?.Query["amount"]);
-            string jsonContains = req?.Query["jsonContains"];
+            //string jsonContains = req?.Query["jsonContains"];
             var queues = (await App.DataLakeQueue.PeekMessagesAsync(amount));
             if (queues == null)
                 return new OkObjectResult(default);
 
+
             foreach (var queue in queues)
-                if (string.IsNullOrEmpty(jsonContains))
-                    res.Add(new QueueResponse(queue));
-                else
-                {
-                    var json = Encoding.ASCII.GetString(queue.Body);
-                    if (json.Contains(jsonContains, StringComparison.OrdinalIgnoreCase))
-                        res.Add(new QueueResponse(queue));
-                }
+            {
+
+                res.Add(new QueueResponse(queue));
+
+                ///The following is not possible. Quesus are first in, first out.
+                //if (string.IsNullOrEmpty(jsonContains))
+                //    res.Add(new QueueResponse(queue));
+                //else
+                //{
+                //    var json = Encoding.ASCII.GetString(queue.Body);
+                //    if (json.Contains(jsonContains, StringComparison.OrdinalIgnoreCase))
+                //        res.Add(new QueueResponse(queue));
+                //}
+            }
+
+            var b = queues?.Select(o => o.Body);
 
             return new OkObjectResult(res);
         }
 
         //God dok: https://www.ais.com/self-documenting-azure-functions-with-c-and-openapi-part-two/
         [FunctionName(nameof(QueuesAdd))]
-        [OpenApiOperation(operationId: nameof(QueuesAdd), tags: new[] { "Queues" }, Summary = "Used from OS2IOT to parse data. To tst this, the OS2IOT_Authorization key has to be set", Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiOperation(operationId: nameof(QueuesAdd), tags: new[] { "Queues" }, Summary = "Used from OS2IOT to parse data. To test this, the OS2IOT_Authorization key has to be set", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiRequestBody("application/json", typeof(string), Description = "The json that comes from OS2IOT")]
         [OpenApiSecurity(schemeName: "OS2IOT_Authorization", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header, Description = "Used in in a POST API-call from OS2IOT. Has to be special, because OS2IOT has a specific way of authorization. The key comes from OS2IOT")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(string), Description = "The OK response")]

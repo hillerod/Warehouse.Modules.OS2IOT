@@ -3,7 +3,7 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<AzureFunctionsVersion>v4</AzureFunctionsVersion>
 		<OutputType>Library</OutputType>
-		<Version>0.4.7</Version>
+		<Version>0.4.8</Version>
 		<PackageId>hillerod.Warehouse.Modules.OS2IOT</PackageId>
 		<Authors>Kenboc</Authors>
 		<Company>Hillerød Kommune</Company>
@@ -15,6 +15,11 @@
 		<PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.1" />
 	</ItemGroup>
 
+	<!--For testing-->
+	<!--<ItemGroup>
+		<ProjectReference Include="..\..\..\Warehouse\Warehouse\Warehouse.csproj" />
+	</ItemGroup>-->
+
 	<ItemGroup>
 		<None Update="host.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -23,5 +28,9 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Properties\ServiceDependencies\" />
 	</ItemGroup>
 </Project>
