@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Bygdrift.Warehouse;
 using Module.Services.OS2IOTModels;
 using Module.Services;
+using System.Linq;
 
 namespace Module.AppFunctions
 {
@@ -26,16 +27,20 @@ namespace Module.AppFunctions
             service = new OS2IOTApiService(App);
         }
 
-        //[FunctionName(nameof(GetApplications))]
-        //[OpenApiOperation(operationId: nameof(GetApplications), tags: new[] { "OS2IOT" }, Summary = "Get all applications from the OS2IOT", Visibility = OpenApiVisibilityType.Important)]
+        [FunctionName(nameof(GetApplications))]
+        [OpenApiOperation(operationId: nameof(GetApplications), tags: new[] { "OS2IOT" }, Summary = "Get all applications from the OS2IOT", Visibility = OpenApiVisibilityType.Important)]
         //[OpenApiSecurity("Azure Authorization", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query, Description = "A function app key from Azure")]  //https://devkimchi.com/2021/10/06/securing-azure-function-endpoints-via-openapi-auth/
-        //[OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Applications), Summary = "successful operation", Description = "successful operation")]
-        //[OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "No modules found")]
-        //public async Task<IActionResult> GetApplications([HttpTrigger(AuthorizationLevel.Function, "get", Route = "os2iot/GetApplications")] HttpRequest req)
-        //{
-        //    var res = await service.GetApplicationsAsync();
-        //    return new OkObjectResult(res);
-        //}
+        [OpenApiSecurity(schemeName: "OS2IOT_Authorization", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header, Description = "Used in in a POST API-call from OS2IOT. Has to be special, because OS2IOT has a specific way of authorization. The key comes from OS2IOT")]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Applications), Summary = "successful operation", Description = "successful operation")]
+        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "No modules found")]
+        public async Task<IActionResult> GetApplications([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "os2iot/GetApplications")] HttpRequest req)
+        {
+            if (!OS2IOTAuthorized(req))
+                return new UnauthorizedResult();
+
+            var res = await service.GetApplicationsAsync();
+            return new OkObjectResult(res);
+        }
 
         //[FunctionName(nameof(GetDeviceModels))]
         //[OpenApiOperation(operationId: nameof(GetDeviceModels), tags: new[] { "OS2IOT" }, Summary = "Get all devicemodels from the OS2IOT", Visibility = OpenApiVisibilityType.Important)]
@@ -62,5 +67,15 @@ namespace Module.AppFunctions
         //    var iotDevices = await service.GetIOTDevicesAsync(applications);
         //    return new OkObjectResult(iotDevices);
         //}
+
+        bool OS2IOTAuthorized(HttpRequest req)
+        {
+            if (req.Headers.TryGetValue("Authorization", out var value))
+            {
+                var authorization = value.FirstOrDefault()?.Replace("Bearer", string.Empty).Trim();
+                return authorization == App.Settings.OS2IOTAuthorization;
+            }
+            return false;
+        }
     }
 }

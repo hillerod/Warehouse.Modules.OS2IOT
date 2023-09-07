@@ -35,11 +35,14 @@ namespace Module.AppFunctions
         [OpenApiParameter(name: "amount", In = ParameterLocation.Query, Required = false, Type = typeof(int?), Description = "The amount of fetched messages. Default = 0 means return all", Visibility = OpenApiVisibilityType.Undefined)]
         //[OpenApiParameter(name: "jsonContains", In = ParameterLocation.Query, Required = false, Type = typeof(string), Description = "Looks if json contains the searched pattern. Default = null means return all", Visibility = OpenApiVisibilityType.Undefined)]
         //[OpenApiParameter(name: "deleteQueues", In = ParameterLocation.Query, Required = false, Type = typeof(bool), Description = "Wether the fetched queues should be deleted from the server. Default = false")]
-        [OpenApiSecurity("Azure Authorization", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query, Description = "A function app key from Azure")]  //https://devkimchi.com/2021/10/06/securing-azure-function-endpoints-via-openapi-auth/
+        [OpenApiSecurity(schemeName: "OS2IOT_Authorization", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header, Description = "Used in in a POST API-call from OS2IOT. Has to be special, because OS2IOT has a specific way of authorization. The key comes from OS2IOT")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(List<QueueResponse>), Summary = "successful operation", Description = "successful operation")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Description = "No messages found")]
-        public async Task<IActionResult> QueuesGetAndDelete([HttpTrigger(AuthorizationLevel.Function, "get", Route = "queues/GetAndDelete")] HttpRequest req)
+        public async Task<IActionResult> QueuesGetAndDelete([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "queues/GetAndDelete")] HttpRequest req)
         {
+            if (!OS2IOTAuthorized(req))
+                return new UnauthorizedResult();
+
             var amount = GetNullableInt(req?.Query["amount"]);
             var queues = (await App.DataLakeQueue.GetMessagesAsync(amount))?.ToList();
             //string jsonContains = req?.Query["jsonContains"];
@@ -69,22 +72,24 @@ namespace Module.AppFunctions
         }
 
         [FunctionName(nameof(QueuesPeek))]
-        [OpenApiOperation(operationId: nameof(QueuesPeek), tags: new[] { "Queues" }, Summary = "Get all queues from the server without deleting them", Visibility = OpenApiVisibilityType.Important)]
-        [OpenApiParameter(name: "amount", In = ParameterLocation.Query, Required = false, Type = typeof(int?), Description = "The amount of fetched messages. Default = 0 means return all", Visibility = OpenApiVisibilityType.Undefined)]
+        [OpenApiOperation(operationId: nameof(QueuesPeek), tags: new[] { "Queues" }, Summary = "Get up to 32 queues from the server without deleting them. It is not possible to return more with peek when working with queues.", Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiParameter(name: "amount", In = ParameterLocation.Query, Required = false, Type = typeof(int?), Description = "The amount of fetched messages. Default = 0 means return up to 32", Visibility = OpenApiVisibilityType.Undefined)]
         //[OpenApiParameter(name: "jsonContains", In = ParameterLocation.Query, Required = false, Type = typeof(string), Description = "Looks if json contains the searched pattern. Default = null means return all", Visibility = OpenApiVisibilityType.Undefined)]
         //[OpenApiParameter(name: "deleteQueues", In = ParameterLocation.Query, Required = false, Type = typeof(bool), Description = "Wether the fetched queues should be deleted from the server. Default = false")]
-        [OpenApiSecurity("Azure Authorization", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query, Description = "A function app key from Azure")]  //https://devkimchi.com/2021/10/06/securing-azure-function-endpoints-via-openapi-auth/
+        [OpenApiSecurity(schemeName: "OS2IOT_Authorization", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header, Description = "Used in in a POST API-call from OS2IOT. Has to be special, because OS2IOT has a specific way of authorization. The key comes from OS2IOT")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(List<QueueResponse>), Summary = "successful operation", Description = "successful operation")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Description = "No messages found")]
-        public async Task<IActionResult> QueuesPeek([HttpTrigger(AuthorizationLevel.Function, "get", Route = "queues/peek")] HttpRequest req)
+        public async Task<IActionResult> QueuesPeek([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "queues/peek")] HttpRequest req)
         {
+            if (!OS2IOTAuthorized(req))
+                return new UnauthorizedResult();
+
             var res = new List<QueueResponse>();
             var amount = GetNullableInt(req?.Query["amount"]);
             //string jsonContains = req?.Query["jsonContains"];
             var queues = (await App.DataLakeQueue.PeekMessagesAsync(amount));
             if (queues == null)
                 return new OkObjectResult(default);
-
 
             foreach (var queue in queues)
             {
@@ -101,9 +106,6 @@ namespace Module.AppFunctions
                 //        res.Add(new QueueResponse(queue));
                 //}
             }
-
-            var b = queues?.Select(o => o.Body);
-
             return new OkObjectResult(res);
         }
 
@@ -130,15 +132,18 @@ namespace Module.AppFunctions
             await App.DataLakeQueue.AddMessageAsync(json);
             return new OkResult();
         }
-
+        //https://os2iot-zgvbxkrhecgmo.azurewebsites.net/api/swagger/ui#/Tests/QueuesAddTest
         [FunctionName(nameof(QueuesAddTest))]
         [OpenApiOperation(operationId: nameof(QueuesAddTest), tags: new[] { "Tests" }, Summary = "Add a test queue", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiParameter(name: "message", In = ParameterLocation.Query, Required = false, Type = typeof(string), Description = "A test on content. By default = 'Test'")]
-        [OpenApiSecurity("Azure Authorization", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query, Description = "A function app key from Azure")]  //https://devkimchi.com/2021/10/06/securing-azure-function-endpoints-via-openapi-auth/
+        [OpenApiSecurity(schemeName: "OS2IOT_Authorization", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header, Description = "Used in in a POST API-call from OS2IOT. Has to be special, because OS2IOT has a specific way of authorization. The key comes from OS2IOT")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Azure.Storage.Queues.Models.SendReceipt), Summary = "successful operation", Description = "successful operation")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "No modules found")]
-        public async Task<IActionResult> QueuesAddTest([HttpTrigger(AuthorizationLevel.Function, "get", Route = "queues/addTest")] HttpRequest req)
+        public async Task<IActionResult> QueuesAddTest([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "queues/addTest")] HttpRequest req)
         {
+            if (!OS2IOTAuthorized(req))
+                return new UnauthorizedResult();
+
             var message = req?.Query["message"];
             if (string.IsNullOrEmpty(message))
                 message = "Test";
@@ -154,12 +159,16 @@ namespace Module.AppFunctions
         [OpenApiOperation(operationId: nameof(QueuesTest), tags: new[] { "Tests" }, Summary = "Hello world", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiParameter(name: "testPath", In = ParameterLocation.Path, Required = false, Type = typeof(string), Description = "A test")]
         [OpenApiParameter(name: "testQuery", In = ParameterLocation.Query, Required = false, Type = typeof(string), Description = "A test")]
-        [OpenApiSecurity("Azure Authorization", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query, Description = "A function app key from Azure")]  //https://devkimchi.com/2021/10/06/securing-azure-function-endpoints-via-openapi-auth/
+        //[OpenApiSecurity("Azure Authorization", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query, Description = "A function app key from Azure")]  //https://devkimchi.com/2021/10/06/securing-azure-function-endpoints-via-openapi-auth/
+        [OpenApiSecurity(schemeName: "OS2IOT_Authorization", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header, Description = "Used in in a POST API-call from OS2IOT. Has to be special, because OS2IOT has a specific way of authorization. The key comes from OS2IOT")]
         [OpenApiRequestBody("text/plain", typeof(string))]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string), Description = "The OK response")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "No modules found")]
         public async Task<IActionResult> QueuesTest([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "queues/test/{testPath}")] HttpRequest req, string testPath)
         {
+            if (!OS2IOTAuthorized(req))
+                return new UnauthorizedResult();
+
             App.Log.LogInformation($"QueuesTest PATH: {App.DataLakeQueue.ConnectionString}, container: {App.DataLakeQueue.Container}, name: {App.DataLakeQueue.Name}");
 
             var testQuery = req?.Query["testQuery"];
@@ -178,12 +187,12 @@ namespace Module.AppFunctions
             //return new OkObjectResult(res);
         }
 
-        private bool OS2IOTAuthorized(HttpRequest req)
+        bool OS2IOTAuthorized(HttpRequest req)
         {
             if (req.Headers.TryGetValue("Authorization", out var value))
             {
                 var authorization = value.FirstOrDefault()?.Replace("Bearer", string.Empty).Trim();
-                return authorization == App.Settings.OS2IOTPostPayloadsAuthorizationKey;
+                return authorization == App.Settings.OS2IOTAuthorization;
             }
             return false;
         }

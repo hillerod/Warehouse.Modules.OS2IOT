@@ -59,7 +59,7 @@
     },
     "IngestQueuedPayloadsScheduleExpression": {
       "type": "string",
-      "defaultValue": "0 */1 * * * *",
+      "defaultValue": "0 */10 * * * *",
       "metadata": {
         "description": "How often queued payloads should be loaded to db. This example runs each 5 minutes. Read more here: https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer"
       }
