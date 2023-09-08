@@ -19,7 +19,7 @@ namespace Module.Refines
         {
             App = app;
             await Add("Organizations", organizations, CreateOrganizationsCsv(organizations), "id");
-            await Add("ChirpstackGateways", gateways, CreateGatwaysCsv(gateways), "id");
+            await Add("ChirpstackGateways", gateways, CreateGatewaysCsv(gateways), "id");
             await Add("Applications", applications, CreateApplicationsCsv(applications), "id");
             await Add("DeviceModels", deviceModels, CreateDeviceModelsCsv(deviceModels), "id");
             await Add("IotDevices", iotDevices, CreateIotDevicesCsv(iotDevices), "id");
@@ -33,11 +33,11 @@ namespace Module.Refines
             App.Mssql.MergeCsv(csv, name, primaryKeyId, false, false);
         }
 
-        private static Csv CreateGatwaysCsv(ChirpstackGateway[] gateways)
+        private static Csv CreateGatewaysCsv(ChirpstackGateway[] gateways)
         {
             var csv = new Csv();
             foreach (var item in gateways)
-                csv.FromObject(item, true);
+                csv.AddObject(item, true);
 
             return csv;
         }

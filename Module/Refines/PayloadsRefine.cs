@@ -16,33 +16,36 @@ namespace Module.Refines
 {
     public class PayloadsRefine
     {
-        public static async Task<bool> RefineAsync(AppBase<Settings> app, IEnumerable<QueueMessage> payloads)
+        public static async Task<Csv> RefineAsync(AppBase<Settings> app, IEnumerable<QueueMessage> payloads, bool saveToDataLakeAndMsql)
         {
-            if(payloads == null || !payloads.Any())
-                return true;
-            
+            if (payloads == null || !payloads.Any())
+                return null;
+
             app.Log.LogInformation("Refining data...");
             var csv = CreateCsv(app, payloads);
             var smallGuid = Convert.ToBase64String(Guid.NewGuid().ToByteArray()).Replace("/", string.Empty).Replace("+", string.Empty)[..10];
             var fileName = $"{app.LoadedLocal:yyyy-MM-dd-HH.mm.ss}_payload_{smallGuid}.csv";
-            await app.DataLake.SaveCsvAsync(csv, "PayloadRefined", fileName, FolderStructure.DatePath);
-            app.Mssql.InsertCsv(csv, "Payloads", false, false);
-            return true;
+            if (saveToDataLakeAndMsql)
+            {
+                await app.DataLake.SaveCsvAsync(csv, "PayloadRefined", fileName, FolderStructure.DatePath);
+                app.Mssql.InsertCsv(csv, "Payloads", false, false);
+            }
+            return csv;
         }
-        
+
         private static Csv CreateCsv(AppBase<Settings> app, IEnumerable<QueueMessage> payloads)
         {
             var now = app.ToLocalTime(DateTime.UtcNow);
-            var csv = new Csv();
+            var res = new Csv();
 
             foreach (var item in payloads)
             {
                 var time = item.InsertedOn.HasValue ? app.ToLocalTime(item.InsertedOn.Value.UtcDateTime) : now;
                 var json = Encoding.ASCII.GetString(item.Body);
-                csv.FromCsv(new Csv().FromJson(json, true).AddColumn("timeStamp", time, true), false);
+                res.AddCsv(new Csv().AddJson(json, true).AddColumn("QueueReceived", time, true));
             }
 
-            return csv;
+            return res;
         }
     }
 }
