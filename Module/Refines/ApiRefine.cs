@@ -15,9 +15,11 @@ namespace Module.Refines
     public class ApiRefine
     {
         private static AppBase<Settings> App;
-        public static async Task RefineAsync(AppBase<Settings> app, Organizations organizations, Applications applications, DeviceModels deviceModels, IEnumerable<IotDevice> iotDevices, ChirpstackGateway[] gateways)
+        private static bool AddToDataLakeAnsMssql;
+        public static async Task RefineAsync(AppBase<Settings> app, bool addToDataLakeAnsMssql, Organizations organizations, Applications applications, DeviceModels deviceModels, IEnumerable<IotDevice> iotDevices, ChirpstackGateway[] gateways)
         {
             App = app;
+            AddToDataLakeAnsMssql = addToDataLakeAnsMssql;
             await Add("Organizations", organizations, CreateOrganizationsCsv(organizations), "id");
             await Add("ChirpstackGateways", gateways, CreateGatewaysCsv(gateways), "id");
             await Add("Applications", applications, CreateApplicationsCsv(applications), "id");
@@ -25,20 +27,23 @@ namespace Module.Refines
             await Add("IotDevices", iotDevices, CreateIotDevicesCsv(iotDevices), "id");
         }
 
-        private static async Task Add(string name, object data, Csv csv, string primaryKeyId) 
+        private static async Task Add(string name, object data, Csv csv, string primaryKeyId)
         {
             if (data == null)
                 return;
-            
+
             App.Log.LogInformation($"Refine and save {name}...");
-            await App.DataLake.SaveObjectAsync(data, "ApiRaw", name + ".json", FolderStructure.DatePath);
-            await App.DataLake.SaveCsvAsync(csv, "ApiRefined", name + ".csv", FolderStructure.DatePath);
-            App.Mssql.MergeCsv(csv, name, primaryKeyId, false, false);
+            if (AddToDataLakeAnsMssql)
+            {
+                await App.DataLake.SaveObjectAsync(data, "ApiRaw", name + ".json", FolderStructure.DatePath);
+                await App.DataLake.SaveCsvAsync(csv, "ApiRefined", name + ".csv", FolderStructure.DatePath);
+                App.Mssql.MergeCsv(csv, name, primaryKeyId, false, false);
+            }
         }
 
         private static Csv CreateOrganizationsCsv(Organizations organizations)
         {
-            if(organizations == null)
+            if (organizations == null)
                 return null;
 
             var csv = new Csv("id, name, applicationIds, createdAt, updatedAt");
@@ -91,8 +96,8 @@ namespace Module.Refines
             {
                 var lat = i.location.coordinates[0];
                 var lon = i.location.coordinates?[1];
-                csv.AddRow(i.id, i.application.id, i.deviceModel.id, i.chirpstackApplicationId, i.name, i.deviceEUI, i.comment, i.commentOnLocation, i.metadata, 
-                    lat, lon, i.latestReceivedMessage.sentTime, i.lorawanSettings.activationType, i.lorawanSettings.deviceStatusBattery, i.createdAt, i.updatedAt, i.createdBy, i.updatedBy);
+                csv.AddRow(i.id, i.application?.id, i.deviceModel?.id, i.chirpstackApplicationId, i.name, i.deviceEUI, i.comment, i.commentOnLocation, i.metadata,
+                    lat, lon, i.latestReceivedMessage?.sentTime, i.lorawanSettings?.activationType, i.lorawanSettings?.deviceStatusBattery, i.createdAt, i.updatedAt, i.createdBy, i.updatedBy);
             }
 
             return csv;

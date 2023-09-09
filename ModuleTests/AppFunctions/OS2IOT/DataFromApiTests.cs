@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Module.AppFunctions;
 using Module.Refines;
 using Module.Services;
+using Module.Services.OS2IOTModels;
 using Moq;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,16 +23,18 @@ namespace ModuleTests.AppFunctions.OS2IOT
         public async Task GetData()
         {
             var ApiService = new OS2IOTApiService(function.App);
-           var organizations = await ApiService.GetOrganizationsAsync();
-           
-            
             var applications = await ApiService.GetApplicationsAsync();
             var iotDevices = await ApiService.GetIOTDevicesAsync(applications);
-         //   var models = await ApiService.GetDeviceModelsAsync();
-           // var chirpstackGateways = await ApiService.GetChirpstackGatewaysAsync(organizations);
+            var models = await ApiService.GetDeviceModelsAsync();
+
+            //Only possible if administrator:
+            ///var organizations = await ApiService.GetOrganizationsAsync();
+            /// var chirpstackGateways = await ApiService.GetChirpstackGatewaysAsync(organizations);
+
+            await ApiRefine.RefineAsync(function.App, false, null, applications, models, iotDevices, null);
         }
 
-            [TestMethod]
+        [TestMethod]
         public async Task TimerTrigger()
         {
             await function.App.DataLake.DeleteDirectoryAsync("", FolderStructure.Path);

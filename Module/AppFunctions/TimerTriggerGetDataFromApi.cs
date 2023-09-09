@@ -32,7 +32,7 @@ namespace Module.AppFunctions
             var models = await ApiService.GetDeviceModelsAsync();
             var iotDevices = await ApiService.GetIOTDevicesAsync(applications);
             var chirpstackGateways = App.Settings.GetOS2IOTApiOrganizationAndGateways ? await ApiService.GetChirpstackGatewaysAsync(organizations) : null;
-            await ApiRefine.RefineAsync(App, organizations, applications, models, iotDevices, chirpstackGateways);
+            await ApiRefine.RefineAsync(App, true, organizations, applications, models, iotDevices, chirpstackGateways);
         }
     }
 }
