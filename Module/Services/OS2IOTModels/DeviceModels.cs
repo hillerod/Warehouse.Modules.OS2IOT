@@ -23,10 +23,13 @@ namespace Module.Services.OS2IOTModels
         public string name { get; set; }
         public string type { get; set; }
         public string category { get; set; }
+        public string[] function { get; set; }
         public string brandName { get; set; }
         public string modelName { get; set; }
+        public string[] supportedUnits { get; set; }
         public string manufacturerName { get; set; }
+        public string[] supportedProtocol { get; set; }
         public string[] controlledProperty { get; set; }
+        public string energyLimitationClass { get; set; }
     }
-
 }

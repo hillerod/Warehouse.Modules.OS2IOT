@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace Module.Services.OS2IOTModels
 {
-
     public class IotDevice
     {
         public int id { get; set; }
@@ -141,5 +140,4 @@ namespace Module.Services.OS2IOTModels
         public DateTime sentTime { get; set; }
         public object signalData { get; set; }
     }
-
 }

@@ -9,6 +9,7 @@ namespace Module.Services.OS2IOTModels
         public int count { get; set; }
     }
 
+
     public class ApplicationDatum
     {
         public int id { get; set; }
@@ -16,6 +17,16 @@ namespace Module.Services.OS2IOTModels
         public DateTime updatedAt { get; set; }
         public string name { get; set; }
         public string description { get; set; }
+        public string status { get; set; }
+        public object startDate { get; set; }
+        public object endDate { get; set; }
+        public string category { get; set; }
+        public string owner { get; set; }
+        public string contactPerson { get; set; }
+        public string contactEmail { get; set; }
+        public string contactPhone { get; set; }
+        public object personalData { get; set; }
+        public string hardware { get; set; }
         public ApplicationsIOTdevice[] iotDevices { get; set; }
     }
 

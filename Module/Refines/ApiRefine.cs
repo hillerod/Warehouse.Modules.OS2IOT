@@ -27,23 +27,20 @@ namespace Module.Refines
 
         private static async Task Add(string name, object data, Csv csv, string primaryKeyId) 
         {
+            if (data == null)
+                return;
+            
             App.Log.LogInformation($"Refine and save {name}...");
             await App.DataLake.SaveObjectAsync(data, "ApiRaw", name + ".json", FolderStructure.DatePath);
             await App.DataLake.SaveCsvAsync(csv, "ApiRefined", name + ".csv", FolderStructure.DatePath);
             App.Mssql.MergeCsv(csv, name, primaryKeyId, false, false);
         }
 
-        private static Csv CreateGatewaysCsv(ChirpstackGateway[] gateways)
-        {
-            var csv = new Csv();
-            foreach (var item in gateways)
-                csv.AddObject(item, true);
-
-            return csv;
-        }
-
         private static Csv CreateOrganizationsCsv(Organizations organizations)
         {
+            if(organizations == null)
+                return null;
+
             var csv = new Csv("id, name, applicationIds, createdAt, updatedAt");
             foreach (var a in organizations.data)
             {
@@ -54,11 +51,23 @@ namespace Module.Refines
             return csv;
         }
 
+        private static Csv CreateGatewaysCsv(ChirpstackGateway[] gateways)
+        {
+            if (gateways == null)
+                return null;
+
+            var csv = new Csv();
+            foreach (var item in gateways)
+                csv.AddObject(item, true);
+
+            return csv;
+        }
+
         private static Csv CreateApplicationsCsv(Applications applications)
         {
-            var csv = new Csv("id, name, description, createdAt, updatedAt");
+            var csv = new Csv("id, name, description, createdAt, updatedAt, status, startDate, endDate, category, owner, contactPerson, constactEmail, contactPhone, personalData, hardware");
             foreach (var a in applications.data)
-                csv.AddRow(a.id, a.name, a.description, a.createdAt, a.updatedAt);
+                csv.AddRow(a.id, a.name, a.description, a.createdAt, a.updatedAt, a.status, a.startDate, a.endDate, a.category, a.owner, a.contactPerson, a.contactEmail, a.contactPhone, a.personalData, a.hardware);
 
             return csv;
         }

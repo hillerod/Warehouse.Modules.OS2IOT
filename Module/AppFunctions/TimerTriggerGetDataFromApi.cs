@@ -24,14 +24,14 @@ namespace Module.AppFunctions
         [FunctionName(nameof(TimerTriggerGetDataFromApi))]
         public async Task Run([TimerTrigger("%OS2IOTApiScheduleExpression%")] TimerInfo myTimer)
         {
-            var organizations = await ApiService.GetOrganizationsAsync();
+            var organizations = App.Settings.GetOS2IOTApiOrganizationAndGateways ? await ApiService.GetOrganizationsAsync(): null;
             var applications = await ApiService.GetApplicationsAsync();
             if (applications == null)
                 return;
 
             var models = await ApiService.GetDeviceModelsAsync();
             var iotDevices = await ApiService.GetIOTDevicesAsync(applications);
-            var chirpstackGateways = await ApiService.GetChirpstackGatewaysAsync(organizations);
+            var chirpstackGateways = App.Settings.GetOS2IOTApiOrganizationAndGateways ? await ApiService.GetChirpstackGatewaysAsync(organizations) : null;
             await ApiRefine.RefineAsync(App, organizations, applications, models, iotDevices, chirpstackGateways);
         }
     }

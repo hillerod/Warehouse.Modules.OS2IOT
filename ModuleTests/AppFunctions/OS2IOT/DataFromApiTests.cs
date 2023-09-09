@@ -2,6 +2,8 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Module.AppFunctions;
+using Module.Refines;
+using Module.Services;
 using Moq;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,6 +19,19 @@ namespace ModuleTests.AppFunctions.OS2IOT
         public QueuesTests() => function = new TimerTriggerGetDataFromApi(loggerMock.Object);
 
         [TestMethod]
+        public async Task GetData()
+        {
+            var ApiService = new OS2IOTApiService(function.App);
+           var organizations = await ApiService.GetOrganizationsAsync();
+           
+            
+            var applications = await ApiService.GetApplicationsAsync();
+            var iotDevices = await ApiService.GetIOTDevicesAsync(applications);
+         //   var models = await ApiService.GetDeviceModelsAsync();
+           // var chirpstackGateways = await ApiService.GetChirpstackGatewaysAsync(organizations);
+        }
+
+            [TestMethod]
         public async Task TimerTrigger()
         {
             await function.App.DataLake.DeleteDirectoryAsync("", FolderStructure.Path);

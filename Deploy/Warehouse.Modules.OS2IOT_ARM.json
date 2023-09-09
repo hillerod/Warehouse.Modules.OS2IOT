@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.11.1.770",
-      "templateHash": "4700692370578275142"
+      "version": "0.18.4.5664",
+      "templateHash": "3623144694076231525"
     }
   },
   "parameters": {
@@ -40,19 +40,26 @@
       }
     },
     "OS2IOTApiUserName": {
-      "type": "secureString",
+      "type": "securestring",
       "metadata": {
         "description": "Username to OS2IOT. Can be left blank, but then data from OS2IOT API, will not be fetched."
       }
     },
+    "GetOS2IOTApiOrganizationAndGateways": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Only administrators can get these details. Set to true if you want the data and you are administrator."
+      }
+    },
     "OS2IOTApiPassword": {
-      "type": "secureString",
+      "type": "securestring",
       "metadata": {
         "description": "Password to OS2IOT. Can be left blank, but then data from OS2IOT API, will not be fetched."
       }
     },
     "OS2IOTPostPayloadsAuthorizationKey": {
-      "type": "secureString",
+      "type": "securestring",
       "metadata": {
         "description": "The authorizationKey used in OS2IOT"
       }
@@ -162,6 +169,10 @@
             {
               "name": "OS2IOTApiBaseUrl",
               "value": "[parameters('OS2IOTApiBaseUrl')]"
+            },
+            {
+              "name": "GetOS2IOTApiOrganizationAndGateways",
+              "value": "[string(parameters('GetOS2IOTApiOrganizationAndGateways'))]"
             },
             {
               "name": "IngestQueuedPayloadsScheduleExpression",
