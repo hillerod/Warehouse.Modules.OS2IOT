@@ -21,5 +21,8 @@ namespace Module
 
         [ConfigSetting]  //Can only be done if user is administrator
         public bool GetOS2IOTApiOrganizationAndGateways { get; set; }
+
+        [ConfigSetting]
+        public bool CalculateOccupancyPerHour { get; set; }
     }
 }

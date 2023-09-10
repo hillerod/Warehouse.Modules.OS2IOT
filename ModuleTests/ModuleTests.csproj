@@ -15,7 +15,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-
+		<PackageReference Include="ScottPlot" Version="4.1.57" />
 		<ProjectReference Include="..\Module\Module.csproj" />
 	</ItemGroup>
 	

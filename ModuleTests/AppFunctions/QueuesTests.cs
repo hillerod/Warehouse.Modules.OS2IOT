@@ -1,6 +1,4 @@
-﻿using Bygdrift.Tools.DataLakeTool;
-using Bygdrift.Warehouse;
-using DocumentFormat.OpenXml.Drawing.Charts;
+﻿using Bygdrift.Warehouse;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -10,13 +8,11 @@ using Module.AppFunctions.Helpers.Models;
 using Moq;
 using Newtonsoft.Json;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace ModuleTests.AppFunctions.Api
+namespace ModuleTests.AppFunctions
 {
     [TestClass]
     public class QueuesTests

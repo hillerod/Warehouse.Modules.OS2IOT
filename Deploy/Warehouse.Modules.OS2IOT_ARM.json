@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.18.4.5664",
-      "templateHash": "3623144694076231525"
+      "templateHash": "3517960087991653297"
     }
   },
   "parameters": {
@@ -30,6 +30,13 @@
       "defaultValue": "https://backend.os2iot.gate21.dk",
       "metadata": {
         "description": "The url to the backend of OS2IOT. Used to fetch data from API. If you use the one from gate21, the address is: https://backend.os2iot.gate21.dk"
+      }
+    },
+    "CalculateOccupancyPerHour": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Each device in OS2 that should be included, must have a Metadata with name = OccupancyPerHour and value = {\"id\": \"deveui\", \"time\": \"time\", \"useUTCTime\": true \"occupancy\": \"data.occupancy\"}"
       }
     },
     "OS2IOTApiScheduleExpression": {
@@ -169,6 +176,10 @@
             {
               "name": "OS2IOTApiBaseUrl",
               "value": "[parameters('OS2IOTApiBaseUrl')]"
+            },
+            {
+              "name": "CalculateOccupancyPerHour",
+              "value": "[string(parameters('CalculateOccupancyPerHour'))]"
             },
             {
               "name": "GetOS2IOTApiOrganizationAndGateways",

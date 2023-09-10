@@ -12,14 +12,15 @@ namespace Module.AppFunctions
     /// </summary>
     public class TimerTriggerGetDataFromApi
     {
+        public AppBase<Settings> App { get; }
+
+        public OS2IOTApiService ApiService { get; }
+
         public TimerTriggerGetDataFromApi(ILogger<TimerTriggerGetDataFromApi> logger)
         {
             App = new AppBase<Settings>(logger);
             ApiService = new OS2IOTApiService(App);
         }
-
-        public AppBase<Settings> App { get; }
-        public OS2IOTApiService ApiService { get; }
 
         [FunctionName(nameof(TimerTriggerGetDataFromApi))]
         public async Task Run([TimerTrigger("%OS2IOTApiScheduleExpression%")] TimerInfo myTimer)

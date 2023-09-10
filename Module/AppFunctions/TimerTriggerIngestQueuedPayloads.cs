@@ -8,13 +8,13 @@ namespace Module.AppFunctions
 {
     public class TimerTriggerIngestQueuedPayloads
     {
+        public AppBase<Settings> App { get; }
+
         public TimerTriggerIngestQueuedPayloads(ILogger<TimerTriggerIngestQueuedPayloads> logger)
         {
             App = new AppBase<Settings>(logger);
             App.DataLakeQueue.QueueName = "payloads";
         }
-
-        public AppBase<Settings> App { get; }
 
         [FunctionName(nameof(TimerTriggerIngestQueuedPayloads))]
         public async Task Run([TimerTrigger("%IngestQueuedPayloadsScheduleExpression%")] TimerInfo myTimer, ILogger log)

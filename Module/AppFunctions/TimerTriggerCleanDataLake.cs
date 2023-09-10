@@ -8,14 +8,14 @@ namespace Module.AppFunctions
 {
     public class TimerTriggerCleanDataLake
     {
+        public AppBase<Settings> App { get; }
+
         public TimerTriggerCleanDataLake(ILogger<TimerTriggerGetDataFromApi> logger)
         {
             App = new AppBase<Settings>(logger);
-            App.Log.LogInformation($"CTOR PATH datalekContainer: {App.DataLake.Container}");
-            App.Log.LogInformation($"CTOR PATH: {App.DataLakeQueue.ConnectionString}, container: {App.DataLakeQueue.Container}, name: {App.DataLakeQueue.Name}");
+            //App.Log.LogInformation($"CTOR PATH datalekContainer: {App.DataLake.Container}");
+            //App.Log.LogInformation($"CTOR PATH: {App.DataLakeQueue.ConnectionString}, container: {App.DataLakeQueue.Container}, name: {App.DataLakeQueue.Name}");
         }
-
-        public AppBase<Settings> App { get; }
 
         [FunctionName(nameof(TimerTriggerCleanDataLake))]
         public async Task Run([TimerTrigger("0 0 0 * * 0")] TimerInfo myTimer)

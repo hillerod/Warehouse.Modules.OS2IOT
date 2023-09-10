@@ -9,15 +9,15 @@ using Moq;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ModuleTests.AppFunctions.OS2IOT
+namespace ModuleTests.AppFunctions
 {
     [TestClass]
-    public class QueuesTests
+    public class DataFromApiTests
     {
         private readonly Mock<ILogger<TimerTriggerGetDataFromApi>> loggerMock = new();
         private readonly TimerTriggerGetDataFromApi function;
 
-        public QueuesTests() => function = new TimerTriggerGetDataFromApi(loggerMock.Object);
+        public DataFromApiTests() => function = new TimerTriggerGetDataFromApi(loggerMock.Object);
 
         [TestMethod]
         public async Task GetData()
