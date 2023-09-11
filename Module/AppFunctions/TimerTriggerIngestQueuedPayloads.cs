@@ -17,8 +17,11 @@ namespace Module.AppFunctions
         }
 
         [FunctionName(nameof(TimerTriggerIngestQueuedPayloads))]
-        public async Task Run([TimerTrigger("%IngestQueuedPayloadsScheduleExpression%")] TimerInfo myTimer, ILogger log)
+        public async Task Run([TimerTrigger("0 */10 * * * *")] TimerInfo myTimer, ILogger log)
         {
+            if (!App.Settings.IngestQueuedPayloads)
+                return;
+
             var messages = await App.DataLakeQueue.GetMessagesAsync();
             if (await PayloadsRefine.RefineAsync(App, messages, true) != null)
                 await App.DataLakeQueue.DeleteMessagesAsync(messages);

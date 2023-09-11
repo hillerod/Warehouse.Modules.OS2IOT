@@ -15,7 +15,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.IO;
 using System.Linq;
-using Module.AppFunctions.Helpers.Models;
+using Module.AppFunctions.Models;
 
 namespace Module.AppFunctions
 {

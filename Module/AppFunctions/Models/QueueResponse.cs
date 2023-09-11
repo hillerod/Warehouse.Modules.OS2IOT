@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace Module.AppFunctions.Helpers.Models
+namespace Module.AppFunctions.Models
 {
     public class QueueResponse
     {
@@ -13,10 +10,7 @@ namespace Module.AppFunctions.Helpers.Models
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
 
-            var decodedBodyBase64 = Encoding.UTF8.GetString(message.Body);
-            Body = decodedBodyBase64;
-            //Body = Encoding.UTF8.GetString(Convert.FromBase64String(decodedBodyBase64));
-
+            Body = Encoding.UTF8.GetString(message.Body);
             Created = message.InsertedOn;
             Expires = message.ExpiresOn;
             Id = message.MessageId;
@@ -27,10 +21,7 @@ namespace Module.AppFunctions.Helpers.Models
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
 
-            var decodedBodyBase64 = Encoding.UTF8.GetString(message.Body);
-            Body = decodedBodyBase64;
-            //Body = Encoding.UTF8.GetString(Convert.FromBase64String(decodedBodyBase64));
-
+            Body = Encoding.UTF8.GetString(message.Body);
             Created = message.InsertedOn;
             Expires = message.ExpiresOn;
             Id = message.MessageId;
@@ -40,6 +31,5 @@ namespace Module.AppFunctions.Helpers.Models
         public string Id { get; set; }
         public DateTimeOffset? Created { get; set; }
         public DateTimeOffset? Expires { get; set; }
-
     }
 }

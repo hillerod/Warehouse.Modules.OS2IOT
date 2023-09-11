@@ -3,6 +3,7 @@ using Bygdrift.Warehouse;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Module;
 using Module.Refines;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,7 @@ namespace ModuleTests.Refines
         private readonly AppBase<Settings> app = new();
         //private readonly string json = "{\"temperature\":23.9,\"humidity\":39,\"light\":234,\"motion\":0,\"co2\":412,\"vdd\":3645,\"deviceId\":\"a81758fffe03d633\",\"location\":{\"type\":\"Point\",\"coordinates\":[12.260736823,55.640562442]},\"commentOnLocation\":\"midt i rodebunken\",\"name\":\"el123\"}";
         private readonly string json = "{ \"deveui\":\"a81758fffe043f5d\", \"time\":\"2023-09-07T19:57:30.45625Z\", \"data\":{ \"motion\":2, \"occupancy\":1 } }";
+        private readonly string json2 = "{ \"deveui\":\"a81758fffe043f5d\", \"time\":\"2023-09-07T19:57:30.45625Z\", \"data\":{} }";
 
         [TestMethod]
         public async Task ImportJson()
@@ -26,9 +28,10 @@ namespace ModuleTests.Refines
             var queues = new List<QueueMessage>()
             {
                 QueuesModelFactory.QueueMessage("id", "pr", json, 1, null, DateTimeOffset.UtcNow),
+                QueuesModelFactory.QueueMessage("id", "pr", json2, 1, null, DateTimeOffset.UtcNow),
             };
             var csv = await PayloadsRefine.RefineAsync(app, queues, false);
-            Assert.AreEqual(5, csv.Records.Count);
+            Assert.AreEqual(9, csv.Records.Count);
         }
 
         /// <summary>Sends a lot of parallel messages to an address. Not intended to be run automatic</summary>

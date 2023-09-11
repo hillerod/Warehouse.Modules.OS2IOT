@@ -22,6 +22,9 @@ namespace Module.AppFunctions
         [FunctionName(nameof(TimerTriggerOccupancies))]
         public async Task Run([TimerTrigger("0 0 * * * *")] TimerInfo myTimer, ILogger log)
         {
+            if (!App.Settings.CalculateOccupancyPerHour)
+                return;
+
             var devices = Service.GetOccupancyDevices();
             foreach (var device in devices)
             {

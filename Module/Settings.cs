@@ -19,10 +19,13 @@ namespace Module
         [ConfigSecret]
         public string OS2IOTAuthorization { get; set; }
 
-        [ConfigSetting]  //Can only be done if user is administrator
+        [ConfigSetting(Default = false)]  //Can only be done if user is administrator
         public bool GetOS2IOTApiOrganizationAndGateways { get; set; }
 
-        [ConfigSetting]
+        [ConfigSetting(Default = false)]
         public bool CalculateOccupancyPerHour { get; set; }
+
+        [ConfigSetting(Default = false)]
+        public bool IngestQueuedPayloads { get; set; }
     }
 }

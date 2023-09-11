@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Module.AppFunctions;
-using Module.AppFunctions.Helpers.Models;
+using Module.AppFunctions.Models;
 using Moq;
 using Newtonsoft.Json;
 using System;
