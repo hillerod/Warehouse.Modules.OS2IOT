@@ -20,6 +20,7 @@ using Module.Refines;
 
 namespace Module.AppFunctions
 {
+    //https://os2iot-zgvbxkrhecgmo.azurewebsites.net/api/swagger/ui
     public class ApiQueues
     {
         public ApiQueues(ILogger<ApiQueues> logger)
@@ -104,58 +105,58 @@ namespace Module.AppFunctions
             return new OkObjectResult(json);
         }
 
-        [FunctionName(nameof(QueuesGetSortedAndDelete))]
-        [OpenApiOperation(operationId: nameof(QueuesGetSortedAndDelete), tags: new[] { "Queues" }, Summary = "Get all queues from the server and deletes them", Visibility = OpenApiVisibilityType.Important)]
-        [OpenApiParameter(name: "amount", In = ParameterLocation.Query, Required = false, Type = typeof(int?), Description = "The amount of fetched messages. Default = 0 means return all", Visibility = OpenApiVisibilityType.Undefined)]
-        [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(List<string>), Description = "A json array of strings that this API shall try to search for. Data will be returned en this given order. If empty, all will be returned.", Required = false)]
-        [OpenApiSecurity(schemeName: "OS2IOT_Authorization", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header, Description = "Used in in a POST API-call from OS2IOT. Has to be special, because OS2IOT has a specific way of authorization. The key comes from OS2IOT")]
-        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(List<QueueResponse>), Summary = "successful operation", Description = "successful operation")]
-        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Description = "No messages found")]
-        public async Task<IActionResult> QueuesGetSortedAndDelete([HttpTrigger(AuthorizationLevel.Function, "post", Route = "queues/GetSortedAndDelete")] HttpRequest req)
-        {
-            if (!OS2IOTAuthorized(req))
-                return new UnauthorizedResult();
+        //[FunctionName(nameof(QueuesGetSortedAndDelete))]
+        //[OpenApiOperation(operationId: nameof(QueuesGetSortedAndDelete), tags: new[] { "Queues" }, Summary = "Get all queues from the server and deletes them", Visibility = OpenApiVisibilityType.Important)]
+        //[OpenApiParameter(name: "amount", In = ParameterLocation.Query, Required = false, Type = typeof(int?), Description = "The amount of fetched messages. Default = 0 means return all", Visibility = OpenApiVisibilityType.Undefined)]
+        //[OpenApiRequestBody(contentType: "application/json", bodyType: typeof(List<string>), Description = "A json array of strings that this API shall try to search for. Data will be returned en this given order. If empty, all will be returned.", Required = false)]
+        //[OpenApiSecurity(schemeName: "OS2IOT_Authorization", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header, Description = "Used in in a POST API-call from OS2IOT. Has to be special, because OS2IOT has a specific way of authorization. The key comes from OS2IOT")]
+        //[OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(List<QueueResponse>), Summary = "successful operation", Description = "successful operation")]
+        //[OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Description = "No messages found")]
+        //public async Task<IActionResult> QueuesGetSortedAndDelete([HttpTrigger(AuthorizationLevel.Function, "post", Route = "queues/GetSortedAndDelete")] HttpRequest req)
+        //{
+        //    if (!OS2IOTAuthorized(req))
+        //        return new UnauthorizedResult();
 
-            var amount = GetNullableInt(req?.Query["amount"]);
-            var queues = (await App.DataLakeQueue.GetMessagesAsync(amount))?.ToList();
-            var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var res = new List<QueueResponse>();
-            var tasks = new List<Task>();
+        //    var amount = GetNullableInt(req?.Query["amount"]);
+        //    var queues = (await App.DataLakeQueue.GetMessagesAsync(amount))?.ToList();
+        //    var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+        //    var res = new List<QueueResponse>();
+        //    var tasks = new List<Task>();
 
-            if (queues == null)
-                return new OkObjectResult(default);
+        //    if (queues == null)
+        //        return new OkObjectResult(default);
 
-            if (string.IsNullOrEmpty(requestBody))
-            {
-                foreach (var queue in queues)
-                {
-                    res.Add(new QueueResponse(queue));
-                    tasks.Add(App.DataLakeQueue.DeleteMessageAsync(queue));
-                }
-            }
-            else
-            {
-                List<string> array;
-                try
-                {
-                    array = JsonConvert.DeserializeObject<List<string>>(requestBody);
-                }
-                catch (System.Exception e)
-                {
-                    return new BadRequestErrorMessageResult("The body is not correct formed like: \"[\\\"Besked 4\\\", \\\"Besked 2\\\"]\".");
-                }
+        //    if (string.IsNullOrEmpty(requestBody))
+        //    {
+        //        foreach (var queue in queues)
+        //        {
+        //            res.Add(new QueueResponse(queue));
+        //            tasks.Add(App.DataLakeQueue.DeleteMessageAsync(queue));
+        //        }
+        //    }
+        //    else
+        //    {
+        //        List<string> array;
+        //        try
+        //        {
+        //            array = JsonConvert.DeserializeObject<List<string>>(requestBody);
+        //        }
+        //        catch (System.Exception e)
+        //        {
+        //            return new BadRequestErrorMessageResult("The body is not correct formed like: \"[\\\"Besked 4\\\", \\\"Besked 2\\\"]\".");
+        //        }
 
-                foreach (var item in array)
-                    foreach (var queue in queues.Where(o => o.Body.ToString().Contains(item, System.StringComparison.InvariantCulture)))
-                    {
-                        res.Add(new QueueResponse(queue));
-                        tasks.Add(App.DataLakeQueue.DeleteMessageAsync(queue));
-                    }
-            }
+        //        foreach (var item in array)
+        //            foreach (var queue in queues.Where(o => o.Body.ToString().Contains(item, System.StringComparison.InvariantCulture)))
+        //            {
+        //                res.Add(new QueueResponse(queue));
+        //                tasks.Add(App.DataLakeQueue.DeleteMessageAsync(queue));
+        //            }
+        //    }
 
-            await Task.WhenAll(tasks);
-            return new OkObjectResult(res);
-        }
+        //    await Task.WhenAll(tasks);
+        //    return new OkObjectResult(res);
+        //}
 
         [FunctionName(nameof(QueuesPeek))]
         [OpenApiOperation(operationId: nameof(QueuesPeek), tags: new[] { "Queues" }, Summary = "Get up to 32 queues from the server without deleting them. It is not possible to return more with peek when working with queues.", Visibility = OpenApiVisibilityType.Important)]
