@@ -1,12 +1,8 @@
 ﻿using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Abstractions;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Configurations;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 //https://github.com/Azure/azure-functions-openapi-extension/blob/main/docs/openapi-core.md
 namespace Module.AppFunctions

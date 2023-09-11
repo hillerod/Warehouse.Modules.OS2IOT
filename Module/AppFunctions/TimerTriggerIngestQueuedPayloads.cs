@@ -23,7 +23,7 @@ namespace Module.AppFunctions
                 return;
 
             var messages = await App.DataLakeQueue.GetMessagesAsync();
-            if (await PayloadsRefine.RefineAsync(App, messages, true) != null)
+            if (await QueuesRefine.RefineAsync(App, messages, true) != null)
                 await App.DataLakeQueue.DeleteMessagesAsync(messages);
         }
     }
