@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Bygdrift.Tools.CsvTool.TimeStacking;
 using Bygdrift.Tools.DataLakeTool;
@@ -28,12 +29,16 @@ namespace Module.AppFunctions
             var devices = Service.GetOccupancyDevices();
             foreach (var device in devices)
             {
-                var csvIn = Service.GetData(device, 3);
-                var timeStack = new TimeStack(csvIn, null, "From", "To").AddInfoFormat("Id", $"{device.DevEUI}-[:From:yyMMddhh]-[:To:yyMMddhh]").AddInfoFormat("DevEUI", device.DevEUI).AddInfoFrom("From").AddInfoTo("To").AddInfoLength("Occupancy");
-                var spans = timeStack.GetSpansPerHour();
-                var csv = timeStack.GetTimeStackedCsv(spans);
-                await App.DataLake.SaveCsvAsync(csv, "OccupancyRefined", "Occupancy.csv", FolderStructure.DateTimePath);
-                App.Mssql.MergeCsv(csv, "Occupancies", "Id", false, false);
+                var csvIn = Service.GetData(device, 15);
+                if (csvIn.Records.Any())
+                {
+                    var timeStack = new TimeStack(csvIn, null, "From", "To").AddInfoFormat("Id", $"{device.DevEUI}-[:From:yyMMddHH]-[:To:yyMMddHH]").AddInfoFormat("DevEUI", device.DevEUI).AddInfoFrom("From").AddInfoTo("To").AddInfoLength("Occupancy");
+                    var spans = timeStack.GetSpansPerHour();
+                    var csv = timeStack.GetTimeStackedCsv(spans);
+                    var fileName = $"{App.LoadedLocal:yyyy-MM-dd-HH.mm.ss}_occupancy.csv";
+                    await App.DataLake.SaveCsvAsync(csv, "OccupancyRefined", fileName, FolderStructure.DatePath);
+                    App.Mssql.MergeCsv(csv, "Occupancies", "Id", false, false);
+                }
             }
         }
     }
