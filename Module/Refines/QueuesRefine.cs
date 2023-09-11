@@ -34,14 +34,14 @@ namespace Module.Refines
             return csv;
         }
 
-        public static string RefineToJson(AppBase<Settings> app, IEnumerable<QueueMessage> payloads, string groupHeader = null)
+        public static JArray RefineToJson(AppBase<Settings> app, IEnumerable<QueueMessage> payloads, string groupHeader = null)
         {
             if (payloads == null || !payloads.Any())
                 return null;
 
             var csv = CreateCsv(app, payloads, false);
             if(string.IsNullOrEmpty(groupHeader))
-                return csv.ToJson();
+                return csv.ToJArray();
 
             var groupHeaderNo = csv.GetHeader(groupHeader);
             var groupedRecords = csv.GetColRecords<string>(groupHeader);
@@ -53,13 +53,13 @@ namespace Module.Refines
                 {
                     var dataGroup = new JObject();
                     foreach (var record in csv.GetRowRecords(row).Where(o => o.Key != groupHeaderNo))
-                        dataGroup.Add(csv.Headers[record.Key], JToken.FromObject(record.Value));
+                        dataGroup.Add(csv.Headers[record.Key], record.Value != null ? JToken.FromObject(record.Value) : null );
 
                     arr.Add(dataGroup);
                 }
                 res.Add(new JObject { { groupHeader, item.Key }, { "group", arr } });
             }
-            return res.ToString(Newtonsoft.Json.Formatting.None);
+            return res; //.ToString(Newtonsoft.Json.Formatting.None);
         }
 
         private static Csv CreateCsv(AppBase<Settings> app, IEnumerable<QueueMessage> payloads, bool addQueuesRecieved)

@@ -85,9 +85,9 @@ namespace Module.AppFunctions
         [FunctionName(nameof(QueuesGetAsJsonAndDelete))]
         [OpenApiOperation(operationId: nameof(QueuesGetAsJsonAndDelete), tags: new[] { "Queues" }, Summary = "Get all queues from the server formated as json and deletes them", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiParameter(name: "amount", In = ParameterLocation.Query, Required = false, Type = typeof(int?), Description = "The amount of fetched messages. Default = 0 means return all", Visibility = OpenApiVisibilityType.Undefined)]
-        [OpenApiParameter(name: "groupByProperty", In = ParameterLocation.Query, Required = false, Type = typeof(string), Description = "You can group data by a propertyname", Visibility = OpenApiVisibilityType.Undefined)]
+        [OpenApiParameter(name: "groupByProperty", In = ParameterLocation.Query, Required = false, Type = typeof(string), Description = "You can group data by a propertyname. Can be left blank.", Visibility = OpenApiVisibilityType.Undefined)]
         [OpenApiSecurity(schemeName: "OS2IOT_Authorization", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header, Description = "Used in in a POST API-call from OS2IOT. Has to be special, because OS2IOT has a specific way of authorization. The key comes from OS2IOT")]
-        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(string), Summary = "successful operation", Description = "successful operation")]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(JArray), Summary = "successful operation", Description = "successful operation")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Description = "No messages found")]
         public async Task<IActionResult> QueuesGetAsJsonAndDelete([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "queues/GetAsJsonAndDelete")] HttpRequest req)
         {
