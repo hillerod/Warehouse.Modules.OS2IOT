@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Bygdrift.Warehouse;
 using System.Collections.Generic;
-using System.Web.Http;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.IO;
@@ -196,18 +195,27 @@ namespace Module.AppFunctions
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "No modules found")]
         public async Task<IActionResult> QueuesAddTest([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "queues/addTest")] HttpRequest req)
         {
-            if (!OS2IOTAuthorized(req))
-                return new UnauthorizedResult();
+            var azure_root = Environment.GetEnvironmentVariable("HOME") + @"\site\wwwroot";
 
-            var message = req?.Query["message"];
-            if (string.IsNullOrEmpty(message))
-                message = "Test";
+            var dllPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            var dllParentPath = Path.GetDirectoryName(dllPath);
+                return new OkObjectResult($"azure:{azure_root}, path: {dllPath}, parent: {dllParentPath}");
 
-            var receipt = await App.DataLakeQueue.AddMessageAsync(message);
-            if (receipt != null)
-                return new OkObjectResult(receipt);
-            else
-                return new InternalServerErrorResult();
+            
+
+
+            //if (!OS2IOTAuthorized(req))
+            //    return new UnauthorizedResult();
+
+            //var message = req?.Query["message"];
+            //if (string.IsNullOrEmpty(message))
+            //    message = "Test";
+
+            //var receipt = await App.DataLakeQueue.AddMessageAsync(message);
+            //if (receipt != null)
+            //    return new OkObjectResult(receipt);
+            //else
+            //    return new InternalServerErrorResult();
         }
 
         [FunctionName(nameof(QueuesTest))]
