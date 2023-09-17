@@ -27,5 +27,8 @@ namespace Module
 
         [ConfigSetting(Default = false)]
         public bool IngestQueuedPayloads { get; set; }
+
+        [ConfigSetting]
+        public string Owner { get; set; }
     }
 }

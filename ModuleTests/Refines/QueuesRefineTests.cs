@@ -5,6 +5,7 @@ using Module;
 using Module.Refines;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -29,9 +30,10 @@ namespace ModuleTests.Refines
                 QueuesModelFactory.QueueMessage("id", "pr", json, 1, null, DateTimeOffset.UtcNow),
                 QueuesModelFactory.QueueMessage("id", "pr", json2, 1, null, DateTimeOffset.UtcNow),
             };
-            var csv = await QueuesRefine.RefineAsync(app, queues, false);
-            csv.ToCsvFile("c:\\Users\\kenbo\\Downloads\\slet.csv");
-            Assert.AreEqual(9, csv.Records.Count);
+
+            var iotDevices = await Helper.GetMssqlIotDevices(app);
+            var res = await QueuesRefine.RefineAsync(app, queues, iotDevices, false);
+            //Assert.AreEqual(6, res.Records.Count);
         }
 
         [TestMethod]

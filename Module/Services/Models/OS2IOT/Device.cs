@@ -1,25 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Module.Services.OS2IOTModels
+namespace Module.Services.Models.OS2IOT
 {
-    public class IotDevice
+    public class Device
     {
         public int id { get; set; }
         public DateTime createdAt { get; set; }
         public DateTime updatedAt { get; set; }
         public string name { get; set; }
-        public IotDeviceLocation location { get; set; }
+        public DeviceLocation location { get; set; }
         public string commentOnLocation { get; set; }
         public string comment { get; set; }
         public object metadata { get; set; }
         public string type { get; set; }
         public string deviceEUI { get; set; }
         public int chirpstackApplicationId { get; set; }
-        public IotDeviceApplication application { get; set; }
+        public DeviceApplication application { get; set; }
         public Receivedmessagesmetadata[] receivedMessagesMetadata { get; set; }
         public Latestreceivedmessage latestReceivedMessage { get; set; }
         public Devicemodel deviceModel { get; set; }
@@ -28,13 +24,13 @@ namespace Module.Services.OS2IOTModels
         public Lorawansettings lorawanSettings { get; set; }
     }
 
-    public class IotDeviceLocation
+    public class DeviceLocation
     {
         public string type { get; set; }
         public float[] coordinates { get; set; }
     }
 
-    public class IotDeviceApplication
+    public class DeviceApplication
     {
         public int id { get; set; }
         public DateTime createdAt { get; set; }

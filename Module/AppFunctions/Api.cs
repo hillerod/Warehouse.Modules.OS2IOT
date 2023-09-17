@@ -17,24 +17,29 @@ using System.IO;
 using System.Linq;
 using Module.AppFunctions.Models;
 using Module.Refines;
+using System;
+using Module.Services;
+using Bygdrift.Tools.CsvTool;
 
 namespace Module.AppFunctions
 {
     //https://os2iot-zgvbxkrhecgmo.azurewebsites.net/api/swagger/ui
-    public class ApiQueues
+    public class Api
     {
-        public ApiQueues(ILogger<ApiQueues> logger)
+        public static readonly string BasePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..\\..\\..\\"));
+
+        public Api(ILogger<Api> logger)
         {
             App = new AppBase<Settings>(logger);
             App.DataLakeQueue.QueueName = "payloads";
-            App.Log.LogInformation($"CTOR local: {App.IsRunningLocal}, PATH: {App.DataLakeQueue.ConnectionString}, container: {App.DataLakeQueue.Container}, name: {App.DataLakeQueue.Name}");
+            App.CsvConfig.DateFormatKind = FormatKind.TimeOffsetDST;
         }
 
         public readonly AppBase<Settings> App;
 
         //God dok: https://www.ais.com/self-documenting-azure-functions-with-c-and-openapi-part-two/
-        [FunctionName(nameof(QueuesAdd))]
         [OpenApiOperation(operationId: nameof(QueuesAdd), tags: new[] { "Queues" }, Summary = "Used from OS2IOT to parse data. To test this, the OS2IOT_Authorization key has to be set", Visibility = OpenApiVisibilityType.Important)]
+        [FunctionName(nameof(QueuesAdd))]
         [OpenApiRequestBody("application/json", typeof(string), Description = "The json that comes from OS2IOT")]
         [OpenApiSecurity(schemeName: "OS2IOT_Authorization", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header, Description = "Used in in a POST API-call from OS2IOT. Has to be special, because OS2IOT has a specific way of authorization. The key comes from OS2IOT")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(string), Description = "The OK response")]
@@ -223,6 +228,83 @@ namespace Module.AppFunctions
             using var reader = new StreamReader(req.Body);
             var body = await reader.ReadToEndAsync();
             return new OkObjectResult($"testPath: {testPath}, testQuery: {testQuery}, Body: {body}.");
+        }
+
+
+        [FunctionName(nameof(DevicesGetAsHtml))]
+        [OpenApiOperation(operationId: nameof(DevicesGetAsHtml), tags: new[] { "devices" }, Summary = "Gives information about a given device as html. Designed to be used in conjunction with scanning a qr-code created with the api: devices/getAsQR.", Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiParameter(name: "deveui", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "The device EUI from OS2IOT of this specific device", Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/html", bodyType: typeof(string), Summary = "successful operation", Description = "successful operation")]
+        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Description = "No messages found")]
+        public async Task<ActionResult> DevicesGetAsHtml([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "q/{deveui}")] HttpRequest req, string deveui)
+        {
+            if (string.IsNullOrEmpty(deveui))
+                return new BadRequestObjectResult("deveui skal være sat");
+
+            var service = new OS2IOTApiService(App);
+            var applications = await service.GetApplicationsAsync();
+            var device = applications?.data.SelectMany(o => o.iotDevices)?.SingleOrDefault(p => p.deviceEUI.Equals(deveui, StringComparison.OrdinalIgnoreCase));
+            if (device == null)
+                return new BadRequestObjectResult("Kunne ikke finde device");
+
+            var application = applications?.data.SingleOrDefault(o => o.iotDevices.Select(p => p.deviceEUI).Any(q => q.Equals(deveui, StringComparison.OrdinalIgnoreCase)));
+            if (application == null)
+            {
+                App.Log.LogCritical("Hvis der er et device så skal der også være en application");
+                return new BadRequestObjectResult("Der er en intern fejl");
+            }
+
+            var html = File.ReadAllText("./AppFunctions/Helpers/DevicesGetAsHtmlResponse.html");
+            html = html.Replace("{{Owner}}", WebUtility.HtmlEncode(App.Settings.Owner));
+            foreach (var prop in application.GetType().GetProperties())
+            {
+                var data = WebUtility.HtmlEncode(prop.GetValue(application, null)?.ToString());
+                html = html.Replace("{{App." + prop.Name + "}}", data);
+            }
+
+            foreach (var prop in device.GetType().GetProperties())
+            {
+                var data = WebUtility.HtmlEncode(prop.GetValue(device, null)?.ToString());
+                html = html.Replace("{{Dev." + prop.Name + "}}", data);
+            }
+
+            return new ContentResult { Content = html, ContentType = "text/html" };
+        }
+
+        [FunctionName(nameof(DevicesGetAsQR))]
+        [OpenApiOperation(operationId: nameof(DevicesGetAsQR), tags: new[] { "devices" }, Summary = "Creates QR-codes that can be applied every device in an application", Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiParameter(name: "applicationName", In = ParameterLocation.Query, Required = false, Type = typeof(string), Description = "The applicationName from OS2IOT of this specific application", Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiParameter(name: "deveuis", In = ParameterLocation.Query, Required = false, Type = typeof(string), Description = "Comma seperated list of devicesEUIs that should be created", Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/html", bodyType: typeof(string), Summary = "successful operation", Description = "successful operation")]
+        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Description = "No messages found")]
+        public async Task<ActionResult> DevicesGetAsQR([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "devices/getAsQR")] HttpRequest req)
+        {
+            var euis = new List<string>();
+            var applicationName = req?.Query["applicationName"];
+            if (!string.IsNullOrEmpty(applicationName))
+            {
+                var service = new OS2IOTApiService(App);
+                var applications = await service.GetApplicationsAsync();
+                var application = applications?.data.FirstOrDefault(o => o.name.ToLower() == applicationName.ToString().ToLower());
+                if (application == null)
+                    return new BadRequestObjectResult($"There are no application with name {applicationName}.");
+
+                foreach (var device in application.iotDevices)
+                    euis.Add(device.deviceEUI);
+            }
+
+            var deveuis = req?.Query["deveuis"];
+            if (!string.IsNullOrEmpty(deveuis))
+                euis.AddRange(deveuis.ToString().Split(','));
+
+            var owner = WebUtility.HtmlEncode(App.Settings.Owner);
+            var li = "";
+            foreach (var eui in euis)
+                li += $"<li><h1>{owner}</h1><div class=\"qrcode\" qr=\"{App.HostName}/api/devices/getAsHtml?deveui={eui}\"></div><h2>Device EUI: {eui}</h2></li>\n";
+
+            var html = File.ReadAllText("./AppFunctions/Helpers/DevicesGetAsQR.html");
+            html = html.Replace("{{li}}", li);
+            return new ContentResult { Content = html, ContentType = "text/html" };
         }
 
         private bool OS2IOTAuthorized(HttpRequest req)

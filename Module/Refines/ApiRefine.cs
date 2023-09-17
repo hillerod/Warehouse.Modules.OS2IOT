@@ -1,22 +1,19 @@
 ﻿using Bygdrift.Tools.CsvTool;
 using Bygdrift.Tools.DataLakeTool;
 using Bygdrift.Warehouse;
-using Module.Services.OS2IOTModels;
+using Module.Services.Models.Mssql;
+using Module.Services.Models.OS2IOT;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-/// <summary>
-/// A refine file, refines incomming data and save it to the public property 'Csv'
-/// Afterwards, it describes, how to save the csv to datalake and/or database
-/// </summary>
 namespace Module.Refines
 {
     public class ApiRefine
     {
         private static AppBase<Settings> App;
         private static bool AddToDataLakeAnsMssql;
-        public static async Task RefineAsync(AppBase<Settings> app, bool addToDataLakeAnsMssql, Organizations organizations, Applications applications, DeviceModels deviceModels, IEnumerable<IotDevice> iotDevices, ChirpstackGateway[] gateways)
+        public static async Task RefineAsync(AppBase<Settings> app, bool addToDataLakeAnsMssql, Organizations organizations, Applications applications, Devicemodels deviceModels, MssqlDevices iotDevices, ChirpstackGateway[] gateways)
         {
             App = app;
             AddToDataLakeAnsMssql = addToDataLakeAnsMssql;
@@ -24,7 +21,7 @@ namespace Module.Refines
             await Add("ChirpstackGateways", gateways, CreateGatewaysCsv(gateways), "id");
             await Add("Applications", applications, CreateApplicationsCsv(applications), "id");
             await Add("DeviceModels", deviceModels, CreateDeviceModelsCsv(deviceModels), "id");
-            await Add("IotDevices", iotDevices, CreateIotDevicesCsv(iotDevices), "id");
+            await Add("IotDevices", iotDevices, CreateIotDevicesCsv(iotDevices), "Id");
         }
 
         private static async Task Add(string name, object data, Csv csv, string primaryKeyId)
@@ -77,7 +74,7 @@ namespace Module.Refines
             return csv;
         }
 
-        private static Csv CreateDeviceModelsCsv(DeviceModels deviceModels)
+        private static Csv CreateDeviceModelsCsv(Devicemodels deviceModels)
         {
             var csv = new Csv("id, name, type, category, brandName, modelName, manufacturerName, controlledProperties, createdAt, updatedAt");
             foreach (var d in deviceModels.data)
@@ -89,18 +86,9 @@ namespace Module.Refines
             return csv;
         }
 
-        private static Csv CreateIotDevicesCsv(IEnumerable<IotDevice> iotDevices)
+        private static Csv CreateIotDevicesCsv(MssqlDevices iotDevices)
         {
-            var csv = new Csv("id, applicationId, deviceModelId, chirpstackApplicationId, name, deviceEUI, comment, commentOnLocation, metadata, latitude, longitude, lastRecievedMessageTime, loraActivationType, loraBatteryStatus, createdAt, updatedAt, createdById, updatedById");
-            foreach (var i in iotDevices)
-            {
-                var lat = i.location.coordinates[0];
-                var lon = i.location.coordinates?[1];
-                csv.AddRow(i.id, i.application?.id, i.deviceModel?.id, i.chirpstackApplicationId, i.name, i.deviceEUI, i.comment, i.commentOnLocation, i.metadata,
-                    lat, lon, i.latestReceivedMessage?.sentTime, i.lorawanSettings?.activationType, i.lorawanSettings?.deviceStatusBattery, i.createdAt, i.updatedAt, i.createdBy, i.updatedBy);
-            }
-
-            return csv;
+            return new Csv().AddModel(iotDevices.IOTDevices);
         }
     }
 }

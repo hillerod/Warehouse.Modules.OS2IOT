@@ -15,15 +15,15 @@ using System.Threading.Tasks;
 namespace ModuleTests.AppFunctions
 {
     [TestClass]
-    public class QueuesTests
+    public class ApiTests
     {
-        private readonly Mock<ILogger<ApiQueues>> loggerMock = new();
-        private readonly ApiQueues function;
+        private readonly Mock<ILogger<Api>> loggerMock = new();
+        private readonly Api function;
         private readonly AppBase<Settings> app;
 
-        public QueuesTests()
+        public ApiTests()
         {
-            function = new ApiQueues(loggerMock.Object);
+            function = new Api(loggerMock.Object);
             app = new AppBase<Settings>();
             app.DataLakeQueue.QueueName = "payloads";
         }
@@ -62,6 +62,14 @@ namespace ModuleTests.AppFunctions
         public async Task PurgeDataToDataLakeQueue()
         {
             await app.DataLakeQueue.DeleteMessagesAsync();
+        }
+
+        [TestMethod]
+        public async Task DevicesGetAsHtml()
+        {
+            var g = app.HostName;
+            var res = await function.DevicesGetAsHtml(default, "a81758fffe043f5d");
+
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 
-namespace Module.Services.OccupanyModels
+namespace Module.Services.Models.Occupancy
 {
     public class OccupancyDevice
     {
@@ -22,16 +22,16 @@ namespace Module.Services.OccupanyModels
         }
 
         public string DevEUI { get; set; }
-        
+
         public string DevEUIColumn { get; set; }
 
         /// <summary>If data is added correct</summary>
         public bool IsValid { get; set; }
-        
+
         public string OccupancyColumn { get; set; }
-        
+
         public string TimeColumn { get; set; }
-        
+
         public bool UseUTCTime { get; set; }
 
     }

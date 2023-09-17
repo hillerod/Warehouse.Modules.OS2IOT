@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.18.4.5664",
-      "templateHash": "2145142290572857655"
+      "templateHash": "11981036657882840786"
     }
   },
   "parameters": {
@@ -85,16 +85,30 @@
         "description": "\"Romance Standard Time\" is Copenhagen. For other timezones, find them here: https://raw.githubusercontent.com/Bygdrift/Warehouse/master/Docs/TimeZoneIds.csv"
       }
     },
+    "Owner": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "A string used when making qr-codes to tell others who owns this system"
+      }
+    },
     "CultureName": {
       "type": "string",
       "defaultValue": "da-DK",
       "metadata": {
         "description": "\"da-DK\" is Denmark."
       }
+    },
+    "AddUniqueGuidToAppName": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Add a unique string to the functioname so it becomes like: \"OS2IOT-zgvbxkrhecgmo\". It is adviced to select true, but it is optional because this module generates qr-codes and they should be as short as possible. Write either true or false."
+      }
     }
   },
   "variables": {
-    "functionAppName": "[format('{0}-{1}', parameters('ModuleName'), uniqueString(resourceGroup().id))]"
+    "functionAppName": "[if(parameters('AddUniqueGuidToAppName'), format('{0}-{1}', parameters('ModuleName'), uniqueString(resourceGroup().id)), parameters('ModuleName'))]"
   },
   "resources": [
     {
@@ -168,6 +182,10 @@
             {
               "name": "ModuleName",
               "value": "[parameters('ModuleName')]"
+            },
+            {
+              "name": "Owner",
+              "value": "[parameters('Owner')]"
             },
             {
               "name": "MonthsToKeepDataInDataLake",

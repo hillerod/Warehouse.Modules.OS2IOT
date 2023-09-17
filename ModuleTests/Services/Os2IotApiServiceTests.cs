@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 namespace ModuleTests.Services
 {
     [TestClass]
-    public class ServiceTests
+    public class Os2IotApiServiceTests
     {
         private readonly OS2IOTApiService service;
         private readonly AppBase<Settings> app = new();
 
-        public ServiceTests()
+        public Os2IotApiServiceTests()
         {
             service = new OS2IOTApiService(app);
         }
@@ -21,7 +21,8 @@ namespace ModuleTests.Services
         [TestMethod]
         public async Task GetDataAsync()
         {
-            var g = await service.GetAuthProfileAsync();
+            //var g = await service.GetAuthProfileAsync();
+            var g = await service.GetIOTDeviceAsync(85);
         }
 
         [TestMethod]

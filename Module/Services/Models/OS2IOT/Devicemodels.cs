@@ -1,23 +1,23 @@
 ﻿using System;
 
-namespace Module.Services.OS2IOTModels
+namespace Module.Services.Models.OS2IOT
 {
 
-    public class DeviceModels
+    public class Devicemodels
     {
-        public DeviceModelDatum[] data { get; set; }
+        public DevicemodelDatum[] data { get; set; }
         public int count { get; set; }
     }
 
-    public class DeviceModelDatum
+    public class DevicemodelDatum
     {
         public int id { get; set; }
         public DateTime createdAt { get; set; }
         public DateTime updatedAt { get; set; }
-        public DeviceModelBody body { get; set; }
+        public DevicemodelBody body { get; set; }
     }
 
-    public class DeviceModelBody
+    public class DevicemodelBody
     {
         public string id { get; set; }
         public string name { get; set; }

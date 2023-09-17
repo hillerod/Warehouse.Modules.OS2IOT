@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Module.Services.OccupanyModels
+namespace Module.Services.Models.Occupancy
 {
-    public class OccupancyTime
+    public class OccupancyData
     {
         private int _occupancy;
 

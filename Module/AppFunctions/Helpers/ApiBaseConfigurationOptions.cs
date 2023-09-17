@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 
 //https://github.com/Azure/azure-functions-openapi-extension/blob/main/docs/openapi-core.md
-namespace Module.AppFunctions
+namespace Module.AppFunctions.Helpers
 {
     public class ApiBaseConfigurationOptions : IOpenApiConfigurationOptions
     {

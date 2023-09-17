@@ -1,5 +1,6 @@
 ﻿using Bygdrift.Warehouse;
-using Module.Services.OS2IOTModels;
+using Module.Services.Models.Mssql;
+using Module.Services.Models.OS2IOT;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -38,9 +39,9 @@ namespace Module.Services
             return await GetAsync<AuthProfile>("/api/v1/auth/profile");
         }
 
-        public async Task<DeviceModels> GetDeviceModelsAsync()
+        public async Task<Devicemodels> GetDeviceModelsAsync()
         {
-            return await GetAsync<DeviceModels>("/api/v1/device-model");
+            return await GetAsync<Devicemodels>("/api/v1/device-model");
         }
 
         public async Task<Applications> GetApplicationsAsync()
@@ -48,25 +49,25 @@ namespace Module.Services
             return await GetAsync<Applications>("/api/v1/Application");
         }
 
-        public async Task<IotDevice> GetIOTDeviceAsync(int deviceId)
+        public async Task<MssqlDevice> GetIOTDeviceAsync(int deviceId)
         {
-            return await GetAsync<IotDevice>("/api/v1/iot-device/" + deviceId);
+            var iotDevice = await GetAsync<Device>("/api/v1/iot-device/" + deviceId);
+            return new MssqlDevice(iotDevice);
         }
 
-        public async Task<IotDevice[]> GetIOTDevicesAsync(Applications applications)
+        public async Task<MssqlDevices> GetIOTDevicesAsync(Applications applications)
         {
             if (applications == null)
                 return null;
 
-            var tasks = new List<Task<IotDevice>>();
-            var res = new List<IotDevice>();
+            var tasks = new List<Task<MssqlDevice>>();
             var ids = applications.data.SelectMany(o => o.iotDevices).Select(p=> p.id);
 
             foreach (var item in ids)
                 tasks.Add(GetIOTDeviceAsync(item));
 
             await Task.WhenAll(tasks);
-            return tasks.Select(o => o.Result).ToArray();
+            return new MssqlDevices( tasks.Select(o => o.Result).ToArray());
         }
 
         public async Task<Organizations> GetOrganizationsAsync()

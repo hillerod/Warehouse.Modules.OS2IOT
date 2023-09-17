@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Module.Services.OS2IOTModels
+namespace Module.Services.Models.OS2IOT
 {
 
     public class ChirpstackGateways

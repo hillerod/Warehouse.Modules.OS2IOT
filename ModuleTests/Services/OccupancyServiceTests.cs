@@ -3,7 +3,7 @@ using Bygdrift.Warehouse;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Module;
 using Module.Services;
-using Module.Services.OccupanyModels;
+using Module.Services.Models.Occupancy;
 using System;
 using System.IO;
 using System.Linq;
@@ -25,23 +25,25 @@ namespace ModuleTests.Services
         [TestMethod]
         public void GetData()
         {
-            var device = GetDevice(false);
-            var csvIn = service.GetData(device, 3);
-            var timeStack = new TimeStack(csvIn, null, "From", "To").AddInfoFormat("Id", $"{device.DevEUI}-[:From:yyMMddhh]-[:To:yyMMddhh]").AddInfoFrom("From").AddInfoTo("To").AddInfoLength("Occupancy");
-            var spans = timeStack.GetSpansPerHour();
-            var csv = timeStack.GetTimeStackedCsv(spans);
+
+
+            //var device = GetDevice(false);
+            //var csvIn = service.GetData(device, 6);
+            //var timeStack = new TimeStack(csvIn, null, "From", "To").AddInfoFormat("Id", $"{device.DevEUI}-[:From:yyMMddhh]-[:To:yyMMddhh]").AddInfoFrom("From").AddInfoTo("To").AddInfoLength("Occupancy");
+            //var spans = timeStack.GetSpansPerHour();
+            //var csv = timeStack.GetTimeStackedCsv(spans);
             //new DrawDigram(2200, 1500, "SampImag.png").DrawTimeStack(spans, false);
-            //csvIn.ToCsvFile(Path.Combine(BasePath, "Files", "Out", "Data.csv"));
-            //csv.ToCsvFile(Path.Combine(BasePath, "Files", "Out", "spans.csv"));
+            //csvIn.ToCsvFile(Path.Combine(BasePath, "Files", "In", "PayloadDataToOccupancis.csv"));
+            //csv.ToCsvFile(Path.Combine(BasePath, "Files", "Out", "Occupancies.csv"));
         }
 
-        private OccupancyDevice GetDevice(bool GetRemote)
-        {
-            if (GetRemote)
-                return service.GetOccupancyDevices().First();
+        //private OccupancyDevice GetDevice(bool GetRemote)
+        //{
+        //    if (GetRemote)
+        //        return service .GetOccupancyDevices().First();
 
-            var json = "{\"OccupancyPerHour\":\"{\\\"deveui\\\": \\\"deveui\\\", \\\"time\\\": \\\"time\\\", \\\"useUTCTime\\\": true, \\\"occupancy\\\": \\\"data.occupancy\\\"}\"}";
-            return new OccupancyDevice("a81758fffe043f5d", json);
-        }
+        //    var json = "{\"OccupancyPerHour\":\"{\\\"deveui\\\": \\\"deveui\\\", \\\"time\\\": \\\"time\\\", \\\"useUTCTime\\\": true, \\\"occupancy\\\": \\\"data.occupancy\\\"}\"}";
+        //    return new OccupancyDevice("a81758fffe043f5d", json);
+        //}
     }
 }
