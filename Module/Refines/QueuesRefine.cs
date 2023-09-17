@@ -19,8 +19,11 @@ namespace Module.Refines
 {
     public class QueuesRefine
     {
+        private static AppBase<Settings> App;
+
         public static async Task<Dictionary<string, List<JToken>>> RefineAsync(AppBase<Settings> app, IEnumerable<QueueMessage> payloads, MssqlDevices iotDevices, bool saveToDataLakeAndMsql)
         {
+            App = app;
             if (payloads == null || !payloads.Any())
                 return null;
 
@@ -37,9 +40,9 @@ namespace Module.Refines
 
                     foreach (var item in res)
                     {
-                        var csv = new Csv();
+                        var csv = new Csv(App.CsvConfig);
                         foreach (var jToken in item.Value)
-                            csv.AddJson(jToken, false);
+                            csv = csv.AddJson(jToken, false);
 
                         app.Mssql.InsertCsv(csv, item.Key, false, false);
                     }
@@ -78,11 +81,11 @@ namespace Module.Refines
 
         private static Csv CreateCsv(IEnumerable<QueueMessage> payloads)
         {
-            var res = new Csv();
+            var res = new Csv(App.CsvConfig);
             foreach (var item in payloads)
             {
                 var json = Encoding.ASCII.GetString(item.Body);
-                var csvIn = new Csv().AddJson(json, true);
+                var csvIn = new Csv(App.CsvConfig).AddJson(json, true);
                 res.AddCsv(csvIn);
             }
             return res;

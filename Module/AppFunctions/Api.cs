@@ -56,7 +56,6 @@ namespace Module.AppFunctions
             if (!ValidateJSON(json))
                 return new BadRequestObjectResult("Data is not valid json");
 
-            App.DataLakeQueue.QueueName = "payloads";
             await App.DataLakeQueue.AddMessageAsync(json);
             return new OkResult();
         }

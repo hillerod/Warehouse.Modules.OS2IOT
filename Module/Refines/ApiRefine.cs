@@ -1,6 +1,7 @@
 ﻿using Bygdrift.Tools.CsvTool;
 using Bygdrift.Tools.DataLakeTool;
 using Bygdrift.Warehouse;
+using DocumentFormat.OpenXml.Math;
 using Module.Services.Models.Mssql;
 using Module.Services.Models.OS2IOT;
 using System.Collections.Generic;
@@ -43,7 +44,7 @@ namespace Module.Refines
             if (organizations == null)
                 return null;
 
-            var csv = new Csv("id, name, applicationIds, createdAt, updatedAt");
+            var csv = new Csv(App.CsvConfig, "id, name, applicationIds, createdAt, updatedAt");
             foreach (var a in organizations.data)
             {
                 var applicationIds = a.applications != null ? string.Join(',', a.applications.Select(p => p.id)) : null;
@@ -58,7 +59,7 @@ namespace Module.Refines
             if (gateways == null)
                 return null;
 
-            var csv = new Csv();
+            var csv = new Csv(App.CsvConfig);
             foreach (var item in gateways)
                 csv.AddObject(item, true);
 
@@ -67,7 +68,7 @@ namespace Module.Refines
 
         private static Csv CreateApplicationsCsv(Applications applications)
         {
-            var csv = new Csv("id, name, description, createdAt, updatedAt, status, startDate, endDate, category, owner, contactPerson, constactEmail, contactPhone, personalData, hardware");
+            var csv = new Csv(App.CsvConfig, "id, name, description, createdAt, updatedAt, status, startDate, endDate, category, owner, contactPerson, constactEmail, contactPhone, personalData, hardware");
             foreach (var a in applications.data)
                 csv.AddRow(a.id, a.name, a.description, a.createdAt, a.updatedAt, a.status, a.startDate, a.endDate, a.category, a.owner, a.contactPerson, a.contactEmail, a.contactPhone, a.personalData, a.hardware);
 
@@ -76,7 +77,7 @@ namespace Module.Refines
 
         private static Csv CreateDeviceModelsCsv(Devicemodels deviceModels)
         {
-            var csv = new Csv("id, name, type, category, brandName, modelName, manufacturerName, controlledProperties, createdAt, updatedAt");
+            var csv = new Csv(App.CsvConfig, "id, name, type, category, brandName, modelName, manufacturerName, controlledProperties, createdAt, updatedAt");
             foreach (var d in deviceModels.data)
             {
                 var controlledProperties = d.body.controlledProperty.Any() ? string.Join(',', d.body.controlledProperty) : null;
@@ -88,7 +89,7 @@ namespace Module.Refines
 
         private static Csv CreateIotDevicesCsv(MssqlDevices iotDevices)
         {
-            return new Csv().AddModel(iotDevices.IOTDevices);
+            return new Csv(App.CsvConfig).AddModel(iotDevices.IOTDevices);
         }
     }
 }

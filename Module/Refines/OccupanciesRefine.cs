@@ -2,6 +2,7 @@
 using Bygdrift.Tools.CsvTool.TimeStacking;
 using Bygdrift.Tools.DataLakeTool;
 using Bygdrift.Warehouse;
+using Module.AppFunctions;
 using Module.Services.Models.Mssql;
 using Module.Services.Models.Occupancy;
 using System;
@@ -13,8 +14,11 @@ namespace Module.Refines
 {
     public class OccupanciesRefine
     {
+        private static AppBase<Settings> App;
+
         public static async Task<Csv> OccupanciesRefineAsync(AppBase<Settings> app, MssqlDevice device, IEnumerable<OccupancyData> data, int delayHours, bool saveToDataLakeAndMsql)
         {
+            App = app;
             if (string.IsNullOrEmpty(device.WHOccupancyProperty) && string.IsNullOrEmpty(device.WHOccupancyTableName))
                 return null;
 
@@ -46,7 +50,7 @@ namespace Module.Refines
 
         private static Csv ConvertFromTo(IEnumerable<OccupancyData> data)
         {
-            var csv = new Csv("From, To");
+            var csv = new Csv(App.CsvConfig, "From, To");
             DateTime? from = null;
             foreach (var item in data)
             {

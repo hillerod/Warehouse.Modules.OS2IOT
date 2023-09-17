@@ -30,7 +30,8 @@ namespace Module.AppFunctions
                 if(_iotDevices == null)
                 {
                     _iotDevices =new MssqlDevices(new MssqlService(App).GetIotDevices());
-                    App.DataLake.SaveStringAsync("IotDevices are called at " + DateTime.Now.ToString(), "Calls", "IotCalls.txt", FolderStructure.DateTimePath).RunSynchronously();
+                    var fileName = $"{App.LoadedLocal:yyyy-MM-dd-HH.mm.ss}_IOTCalls.txt";
+                    Task.Run(async () => { await App.DataLake.SaveStringAsync("IotDevices are called at " + DateTime.Now.ToString(), "Calls", fileName, FolderStructure.DatePath); });
                 }
                 return _iotDevices;
             }

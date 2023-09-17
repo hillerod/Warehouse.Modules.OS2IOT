@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.18.4.5664",
-      "templateHash": "11981036657882840786"
+      "templateHash": "14245006917041773339"
     }
   },
   "parameters": {
@@ -44,13 +44,6 @@
       "defaultValue": true,
       "metadata": {
         "description": "Ingests data from payloads to database each 10 minutes."
-      }
-    },
-    "OS2IOTApiScheduleExpression": {
-      "type": "string",
-      "defaultValue": "0 0 1 * * *",
-      "metadata": {
-        "description": "How often this module should fetch data from API. This example runs each night at 1AM UTC. Read more here: https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer"
       }
     },
     "OS2IOTApiUserName": {
@@ -206,10 +199,6 @@
             {
               "name": "IngestQueuedPayloads",
               "value": "[string(parameters('IngestQueuedPayloads'))]"
-            },
-            {
-              "name": "OS2IOTApiScheduleExpression",
-              "value": "[parameters('OS2IOTApiScheduleExpression')]"
             },
             {
               "name": "TimeZoneId",
